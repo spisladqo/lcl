@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "../../libbmp/libbmp.h"
 #include "../common/common.h"
 
