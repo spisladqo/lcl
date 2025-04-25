@@ -112,14 +112,6 @@ static int init_filter(libconv_filter_t* filter, double** data_arr,
     filter->width = width;
     filter->height = height;
 
-    printf("INIT filter with data:\n");
-    for (int i = 0; i < filter->width; i++) {
-        for (int j = 0; j < filter->height; j++) {
-            printf("%f ", filter->data[j][i]);
-        }
-        printf("\n");
-    }
-
     return LIBCONV_OK;
 }
 

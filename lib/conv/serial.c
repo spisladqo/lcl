@@ -10,19 +10,6 @@ int libconv_app_filter(const libconv_filter_t* filter, const bmp_img* src, bmp_i
         return LIBCONV_SRC_TARG_DIFF_SIZES;
     }
 
-    printf("factor: %f\n", filter->factor);
-    printf("bias: %f\n", filter->bias);
-    printf("width: %d\n", filter->width);
-    printf("height: %d\n", filter->height);
-    printf("filter data:\n");
-    for (int i = 0; i < filter->width; i++) {
-        for (int j = 0; j < filter->height; j++) {
-            printf("%f ", filter->data[j][i]);
-        }
-        printf("\n");
-    }
-
-
     int w = src->img_header.biWidth;
     int h = src->img_header.biHeight;
 
