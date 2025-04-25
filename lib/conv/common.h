@@ -15,8 +15,8 @@ enum lcl_return_code
 {
     LCL_OK = 0,
     LCL_INVALID_ARGUMENT = -5,
-    LCL_SRC_TARG_DIFF_SIZES,
-    LCL_NOT_ENOUGH_MEMORY = -7,
+    LCL_SRC_TARG_DIFF_SIZES = -6,
+    LCL_NOT_ENOUGH_MEMORY,
 };
 
 /*
@@ -53,6 +53,6 @@ extern lcl_filter_t BLUR_filter;
 
 int lcl_init_filters(void);
 void lcl_free_filters(void);
-int lcl_app_filter(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
 
 #endif // LCL_COMMON_H

@@ -24,7 +24,7 @@ static int test_apply_filter(lcl_filter_t* filter, const char* fname_src, const 
         return ret;
     }
 
-    ret = lcl_app_filter(filter, &src, &targ);
+    ret = lcl_app_filter_seq(filter, &src, &targ);
     if (ret) {
         printf("could not apply filter, error %d\n", ret);
         return ret;
@@ -42,7 +42,7 @@ static int test_apply_filter(lcl_filter_t* filter, const char* fname_src, const 
 int main() {
     lcl_init_filters();
 
-    test_apply_filter(&id_filter, IN_IMG_DIR "Mona_Lisa.bmp" , OUT_IMG_DIR "id_Mona_Lisa.bmp" );
+    test_apply_filter(&id_filter, IN_IMG_DIR "Mona_Lisa.bmp", OUT_IMG_DIR "id_Mona_Lisa.bmp");
     test_apply_filter(&blur_filter, IN_IMG_DIR "Sunflowers_van_Gogh.bmp", OUT_IMG_DIR "blur_Sunflowers_van_Gogh.bmp");
     test_apply_filter(&Blur_filter, IN_IMG_DIR "Impression_Sunrise.bmp", OUT_IMG_DIR "Blur_Impression_Sunrise.bmp");
     test_apply_filter(&BLUR_filter, IN_IMG_DIR "The_Ninth_Wave.bmp", OUT_IMG_DIR "BLUR_The_Ninth_Wave.bmp");
