@@ -1,2 +1,2 @@
-# libconv
-An image convolution library.
+# lcl
+library for image convolution.
