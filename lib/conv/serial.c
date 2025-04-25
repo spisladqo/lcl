@@ -1,13 +1,13 @@
 #include "../libbmp/libbmp.h"
 #include "common.h"
 
-int libconv_app_filter(const libconv_filter_t* filter, const bmp_img* src, bmp_img* targ) {
+int lcl_app_filter(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ) {
     if (!filter || !src || !targ) {
-        return LIBCONV_INVALID_ARGUMENT;
+        return LCL_INVALID_ARGUMENT;
     }
     if (src->img_header.biWidth != targ->img_header.biWidth ||
         src->img_header.biHeight != targ->img_header.biHeight) {
-        return LIBCONV_SRC_TARG_DIFF_SIZES;
+        return LCL_SRC_TARG_DIFF_SIZES;
     }
 
     int w = src->img_header.biWidth;
@@ -41,5 +41,5 @@ int libconv_app_filter(const libconv_filter_t* filter, const bmp_img* src, bmp_i
             targ->img_pixels[y][x].blue = new_blue;
         }
     }
-    return LIBCONV_OK;
+    return LCL_OK;
 }
