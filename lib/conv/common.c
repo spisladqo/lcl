@@ -27,9 +27,9 @@ libconv_filter_t id_filter;
  * Blur filters: blur_ (3x3), Blur_ (5x5), BLUR_ (7x7)
  */
 double _blur_filter_data_df[3][3] = {
-    {0, 0.2, 0},
+    {0,   0.2, 0  },
     {0.2, 0.2, 0.2},
-    {0, 0.2, 0},
+    {0,   0.2, 0  },
 };
 
 double* blur_filter_data_df[3] = {
@@ -41,11 +41,11 @@ double* blur_filter_data_df[3] = {
 libconv_filter_t blur_filter;
 
 double _Blur_filter_data_df[5][5] = {
-    {0, 0, 0.077, 0, 0},
-    {0, 0.077, 0.077, 0.077, 0},
+    {0,     0,     0.077, 0,     0    },
+    {0,     0.077, 0.077, 0.077, 0    },
     {0.077, 0.077, 0.077, 0.077, 0.077},
-    {0, 0.077, 0.077, 0.077, 0},
-    {0, 0, 0.077, 0, 0},
+    {0,     0.077, 0.077, 0.077, 0    },
+    {0,     0,     0.077, 0,     0    },
 };
 
 double* Blur_filter_data_df[5] = {
@@ -59,13 +59,13 @@ double* Blur_filter_data_df[5] = {
 libconv_filter_t Blur_filter;
 
 double _BLUR_filter_data_df[7][7] = {
-    {0, 0, 0, 0.04, 0, 0, 0},
-    {0, 0, 0.04, 0.04, 0.04, 0, 0},
-    {0, 0.04, 0.04, 0.04, 0.04, 0.04, 0},
+    {0,    0,    0,    0.04, 0,    0,    0   },
+    {0,    0,    0.04, 0.04, 0.04, 0,    0   },
+    {0,    0.04, 0.04, 0.04, 0.04, 0.04, 0   },
     {0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04},
-    {0, 0.04, 0.04, 0.04, 0.04, 0.04, 0},
-    {0, 0, 0.04, 0.04, 0.04, 0, 0},
-    {0, 0, 0, 0.04, 0, 0, 0},
+    {0,    0.04, 0.04, 0.04, 0.04, 0.04, 0   },
+    {0,    0,    0.04, 0.04, 0.04, 0,    0   },
+    {0,    0,    0,    0.04, 0,    0,    0   },
 };
 
 double* BLUR_filter_data_df[7] = {
@@ -95,10 +95,8 @@ static int init_filter(libconv_filter_t* filter, double** data_arr,
         if (!col) {
             for (int j = 0; j < i;j++) {
                 free(data[j]);
-                data[j] = NULL;
             }
             free(data);
-            data = NULL;
             return LIBCONV_NOT_ENOUGH_MEMORY;
         }
         memcpy(col, data_arr[i], sizeof(double) * height);
@@ -121,21 +119,19 @@ static int init_filter_df(libconv_filter_t* filter,
 }
 
 int libconv_init_filters(void) {
-    double** id_data = id_filter_data_df;
-    double** blur_data = blur_filter_data_df;
-    double** Blur_data = Blur_filter_data_df;
-    double** BLUR_data = BLUR_filter_data_df;
-
-    init_filter_df(&id_filter, id_data, 3, 3);
-    init_filter_df(&blur_filter, blur_data, 3, 3);
-    init_filter_df(&Blur_filter, Blur_data, 5, 5);
-    init_filter_df(&BLUR_filter, BLUR_data, 7, 7);
+    init_filter_df(&id_filter, id_filter_data_df, 3, 3);
+    init_filter_df(&blur_filter, blur_filter_data_df, 3, 3);
+    init_filter_df(&Blur_filter, Blur_filter_data_df, 5, 5);
+    init_filter_df(&BLUR_filter, BLUR_filter_data_df, 7, 7);
 }
 
 static void free_filter(libconv_filter_t* filter) {
+    if (!filter) {
+        return;
+    }
+
     for (int i = 0; i < filter->width; i++) {
         free(filter->data[i]);
-        filter->data[i] = NULL;
     }
     free(filter->data);
     filter->data = NULL;
