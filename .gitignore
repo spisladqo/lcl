@@ -53,3 +53,7 @@ dkms.conf
 
 # temporary files
 temp
+main
+
+# image convolution output
+out*
