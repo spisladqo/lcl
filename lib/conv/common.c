@@ -24,7 +24,7 @@ double* id_filter_data_df[3] = {
 lcl_filter_t id_filter;
 
 /*
- * Blur filters: blur_ (3x3), Blur_ (5x5), BLUR_ (7x7)
+ * Blur filters: blur (3x3), Blur (5x5), BLUR (7x7)
  */
 double _blur_filter_data_df[3][3] = {
     {0,   0.2, 0  },

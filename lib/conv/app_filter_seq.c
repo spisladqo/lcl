@@ -1,5 +1,6 @@
 #include "../libbmp/libbmp.h"
 #include "common.h"
+#include <stdlib.h>
 
 int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ) {
     if (!filter || !src || !targ) {

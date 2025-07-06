@@ -17,10 +17,12 @@ enum lcl_return_code
     LCL_INVALID_ARGUMENT = -5,
     LCL_SRC_TARG_DIFF_SIZES = -6,
     LCL_NOT_ENOUGH_MEMORY,
+    LCL_THREAD_CREATE_FAIL,
+    LCL_THREAD_JOIN_FAIL,
 };
 
 /*
- * data should be a COLUMN-major matrix
+ * data is a column-major matrix
  */
 typedef struct
 {
@@ -30,6 +32,13 @@ typedef struct
     int width;
     int height;
 } lcl_filter_t;
+
+typedef struct {
+    unsigned int start_w;
+    unsigned int start_h;
+    unsigned int end_w;
+    unsigned int end_h;
+} lcl_pile_t;
 
 /*
  * 3x3 id filter
@@ -54,5 +63,6 @@ extern lcl_filter_t BLUR_filter;
 int lcl_init_filters(void);
 void lcl_free_filters(void);
 int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+int lcl_app_filter_one(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
 
 #endif // LCL_COMMON_H

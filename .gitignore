@@ -54,6 +54,7 @@ dkms.conf
 # temporary files
 temp
 main
+liblcl
 
 # image convolution output
 out*

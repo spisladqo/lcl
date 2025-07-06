@@ -1,9 +1,14 @@
-PROJECT=main
-IMG_OUT_DIR=images/output/
-IMG_SERIAL_OUT_DIR=$(IMG_OUT_DIR)/serial/
+PROJECT=liblcl
+IMG_OUT_DIR=images/output
+IMG_SERIAL_OUT_DIR=$(IMG_OUT_DIR)/serial
+LIB=lib
+TEST=test
+LIB_CONV_DIR=$(LIB)/conv
+LIB_LIBBMP_DIR=$(LIB)/libbmp
+TEST_CONV_DIR=$(TEST)/conv
 
 all:
-	$(CC) lib/conv/serial.c lib/conv/common.c lib/libbmp/libbmp.c test/conv/test_serial.c -o $(PROJECT)
+	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(TEST_CONV_DIR)/test.c -o $(PROJECT)
 
 clean:
 	rm -f $(PROJECT)
