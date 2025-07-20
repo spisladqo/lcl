@@ -2,6 +2,7 @@
 #include "../../lib/conv/common.h"
 #include "../../lib/libbmp/libbmp.h"
 #include <time.h>
+#include <pthread.h>
 
 #define LCL_DIR "/home/spisladqo/projects/c/parallels/lcl/"
 #define IN_IMG_DIR LCL_DIR "images/input/"
@@ -48,23 +49,34 @@ static int test_app_filter(int (*app_filter) (const lcl_filter_t*, const bmp_img
     return LCL_OK;
 }
 
+#define FILTER BLUR_filter
+#define FILT_PREF "BLUR_"
+#define IMG_FILENAME "Mona_Lisa.bmp"
+
+#define IN_IMG_PATH (IN_IMG_DIR IMG_FILENAME)
+#define OUT_IMG_PATH (OUT_IMG_DIR FILT_PREF IMG_FILENAME)
+
 int main() {
     lcl_init_filters();
     float seconds;
-    // seq
-    int err = test_app_filter(lcl_app_filter_seq, &id_filter, IN_IMG_DIR "Mona_Lisa.bmp", OUT_IMG_DIR "id_Mona_Lisa.bmp", &seconds);
+    int err;
+    
+    // parallel pile, 1 thread
+    err = test_app_filter(lcl_app_filter_pile_1, &FILTER, IN_IMG_PATH, OUT_IMG_PATH, &seconds);
     if (err != LCL_OK) {
         printf("Error %d\n", err);
         return err;
     }
-    printf("Time elapsed, seq: %f s\n", seconds);
-    // parallel, 1 thread
-     err = test_app_filter(lcl_app_filter_one, &id_filter, IN_IMG_DIR "Mona_Lisa.bmp", OUT_IMG_DIR "id_Mona_Lisa.bmp", &seconds);
+    printf("Time elapsed, piles (n=1): %f s\n", seconds);
+
+    // parallel pile, 2 threads
+    err = test_app_filter(lcl_app_filter_pile_2, &FILTER, IN_IMG_PATH, OUT_IMG_PATH, &seconds);
     if (err != LCL_OK) {
         printf("Error %d\n", err);
         return err;
     }
-    printf("Time elapsed, parallel: %f s\n", seconds);
+    printf("Time elapsed, piles (n=2): %f s\n", seconds);
+
     lcl_free_filters();
 
     return 0;

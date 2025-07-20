@@ -7,8 +7,13 @@ LIB_CONV_DIR=$(LIB)/conv
 LIB_LIBBMP_DIR=$(LIB)/libbmp
 TEST_CONV_DIR=$(TEST)/conv
 
+CC=gcc
+
+# CFLAGS=-O2
+CFLAGS+=-lpthread
+
 all:
-	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(TEST_CONV_DIR)/test.c -o $(PROJECT)
+	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(TEST_CONV_DIR)/test.c -o $(PROJECT) $(CFLAGS)
 
 clean:
 	rm -f $(PROJECT)

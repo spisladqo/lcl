@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include "../libbmp/libbmp.h"
 
 #ifndef LCL_COMMON_H
@@ -40,6 +41,24 @@ typedef struct {
     unsigned int end_h;
 } lcl_pile_t;
 
+enum work_mode {
+    pixel,
+    row,
+    column,
+    pile,
+};
+
+struct arg {
+    pthread_mutex_t lock;
+    lcl_pile_t pile;
+    const lcl_filter_t* filter;
+    const bmp_img* src;
+    bmp_img* targ;
+    enum work_mode mode;
+    unsigned int thread_id;
+    unsigned int total_threads;
+};
+
 /*
  * 3x3 id filter
  */
@@ -62,7 +81,16 @@ extern lcl_filter_t BLUR_filter;
 
 int lcl_init_filters(void);
 void lcl_free_filters(void);
-int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
-int lcl_app_filter_one(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
 
+int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+
+void* _lcl_app_filter_pile(void* varg);
+int lcl_app_filter_pile_1(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+int lcl_app_filter_pile_2(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+int lcl_app_filter_pile_4(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+
+void* _lcl_app_filter_pixel(void* varg);
+int lcl_app_filter_pixel_1(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+int lcl_app_filter_pixel_2(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+int lcl_app_filter_pixel_4(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
 #endif // LCL_COMMON_H
