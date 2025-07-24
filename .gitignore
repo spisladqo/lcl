@@ -56,5 +56,8 @@ temp
 main
 liblcl
 
+# vscode
+.vscode/
+
 # image convolution output
 out*

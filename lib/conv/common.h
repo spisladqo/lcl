@@ -8,6 +8,8 @@
 #define max(a, b) (a > b ? a : b)
 #define absl(a) (a > 0 ? a : -a)
 
+#define MAX_THREADS 1024
+
 /*
  * libbmp uses error codes -1 to -4, so to distinguish their errors,
  * lcl starts from -5
@@ -85,12 +87,9 @@ void lcl_free_filters(void);
 int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
 
 void* _lcl_app_filter_pile(void* varg);
-int lcl_app_filter_pile_1(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
-int lcl_app_filter_pile_2(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
-int lcl_app_filter_pile_4(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+int lcl_app_filter_pile_n(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ, unsigned int n);
 
 void* _lcl_app_filter_pixel(void* varg);
-int lcl_app_filter_pixel_1(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
-int lcl_app_filter_pixel_2(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
-int lcl_app_filter_pixel_4(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+int lcl_app_filter_pixel_n(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ, unsigned int n);
+
 #endif // LCL_COMMON_H

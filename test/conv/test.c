@@ -10,9 +10,10 @@
 
 #define NSEC_IN_SEC 1000000000.0
 
-static int test_app_filter(int (*app_filter) (const lcl_filter_t*, const bmp_img*, bmp_img*),
-        lcl_filter_t* filter, const char* fname_src, const char* fname_targ, double *elapsed_s) {
+static int test_app_filter(int (*app_filter) (const lcl_filter_t*, const bmp_img*, bmp_img*, unsigned int),
+        unsigned int n, lcl_filter_t* filter, const char* fname_src, const char* fname_targ, double *elapsed_s) {
     struct timespec start, end;
+    // double start, end;
     double sec, nsec;
     bmp_img src, targ;
     int ret;
@@ -36,7 +37,7 @@ static int test_app_filter(int (*app_filter) (const lcl_filter_t*, const bmp_img
         return LCL_INVALID_ARGUMENT;
     }
 
-    ret = app_filter(filter, &src, &targ);
+    ret = app_filter(filter, &src, &targ, n);
 
     if (clock_gettime(CLOCK_REALTIME, &end) == -1) {
         printf("clock gettime error");
@@ -46,18 +47,6 @@ static int test_app_filter(int (*app_filter) (const lcl_filter_t*, const bmp_img
     nsec = (end.tv_nsec - start.tv_nsec);
     sec = (end.tv_sec - start.tv_sec);
     *elapsed_s = sec + nsec / NSEC_IN_SEC;
-
-    // do {
-    //     start = clock();
-    //     ret = app_filter(filter, &src, &targ);
-    //     end = clock();
-    // } while (end < start);
-
-    // *elapsed_s = (float)(end - start) / CLOCKS_PER_SEC;
-    // if (ret) {
-    //     printf("could not apply filter, error %d\n", ret);
-    //     return ret;
-    // }
 
     ret = bmp_img_write(&targ, fname_targ);
     if (ret) {
@@ -79,24 +68,34 @@ int main() {
     lcl_init_filters();
     double seconds;
     int err;
-    
-    // parallel pile, 1 thread
-    err = test_app_filter(lcl_app_filter_pile_1, &FILTER, IN_IMG_PATH, OUT_IMG_PATH, &seconds);
-    if (err != LCL_OK) {
-        printf("Error %d\n", err);
-        return err;
-    }
-    printf("Time elapsed, piles (n=1): %lf s\n", seconds);
 
-    // parallel pile, 2 threads
-    err = test_app_filter(lcl_app_filter_pile_2, &FILTER, IN_IMG_PATH, OUT_IMG_PATH, &seconds);
-    if (err != LCL_OK) {
-        printf("Error %d\n", err);
-        return err;
+    int count = 5;
+    int n = 1;
+
+    printf("Test: pile\n");
+    for (int i = 0; i < count; i++) {
+        err = test_app_filter(lcl_app_filter_pile_n, n, &FILTER, IN_IMG_PATH, OUT_IMG_PATH, &seconds);
+        if (err != LCL_OK) {
+            printf("Error %d\n", err);
+            lcl_free_filters();
+            return err;
+        }
+        printf("Time elapsed, piles (n=%d): %lf s\n", n, seconds);
+        n *= 2;
     }
-    printf("Time elapsed, piles (n=2): %lf s\n", seconds);
+
+    // printf("Test: pixel\n");
+    // for (int i = 0; i < count; i++) {
+    //     err = test_app_filter(lcl_app_filter_pixel_n, n, &FILTER, IN_IMG_PATH, OUT_IMG_PATH, &seconds);
+    //     if (err != LCL_OK) {
+    //         printf("Error %d\n", err);
+    //         lcl_free_filters();
+    //         return err;
+    //     }
+    //     printf("Time elapsed, pixels (n=%d): %lf s\n", n, seconds);
+    //     n *= 2;
+    // }
 
     lcl_free_filters();
-
     return 0;
 }
