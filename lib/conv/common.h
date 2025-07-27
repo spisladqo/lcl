@@ -51,7 +51,6 @@ enum work_mode {
 };
 
 struct arg {
-    pthread_mutex_t lock;
     lcl_pile_t pile;
     const lcl_filter_t* filter;
     const bmp_img* src;
@@ -85,11 +84,7 @@ int lcl_init_filters(void);
 void lcl_free_filters(void);
 
 int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
-
-void* _lcl_app_filter_pile(void* varg);
-int lcl_app_filter_pile_n(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ, unsigned int n);
-
-void* _lcl_app_filter_pixel(void* varg);
-int lcl_app_filter_pixel_n(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ, unsigned int n);
+int lcl_app_filter(enum work_mode mode, unsigned int nthreads,
+    const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
 
 #endif // LCL_COMMON_H
