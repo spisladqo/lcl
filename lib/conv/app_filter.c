@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-static void* multiple_job(struct lcl_arg* arg, int x, int y, int w, int h) {
+static inline void* convolute(struct lcl_arg* arg, int x, int y, int w, int h) {
     bmp_img *src = arg->src;
     bmp_img *targ = arg->targ;
     lcl_filter_t *filter = arg->filter;
@@ -86,29 +86,27 @@ static void* app_filter(void *varg) {
     case pilewise:
         for (x = pile.start_w; x < w; x++) {
             for (y = pile.start_h; y < h; y++) {
-                bmp_pixel pixel;
-                reader_job(&pixel, arg, x, y);
-                writer_job(&pixel, arg, x, y);
+                convolute(arg, x, y, w, h);
             }
         }
     break;
     case pixelwise:
         for (y = 0; y < h; y++) {
             for (x = x % w; x < w; x += total_threads) {
-                multiple_job(arg, x, y, w, h);
+                convolute(arg, x, y, w, h);
             }
         }
     break;
     case rowwise:
         for (y = 0; y < h; y += total_threads) {
             for (x = 0; x < w; x++) {
-                multiple_job(arg, x, y, w, h);
+                convolute(arg, x, y, w, h);
             }
         }
     default:
         for (x = 0; x < w; x += total_threads) {
             for (y = 0; y < h; y++) {
-                multiple_job(arg, x, y, w, h);
+                convolute(arg, x, y, w, h);
             }
         }
     }
@@ -133,8 +131,6 @@ int lcl_app_filter(enum lcl_work_mode mode, unsigned int nthreads,
 
     unsigned int src_end_w = src->img_header.biWidth;
     unsigned int src_end_h = src->img_header.biHeight;
-
-
 
     for (int i = 0; i < nthreads; i++) {
         lcl_pile_t pile = {
