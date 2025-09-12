@@ -10,9 +10,11 @@
 
 #define MAX_THREADS 1024
 
-/*
- * libbmp uses error codes -1 to -4, so to distinguish their errors,
- * lcl starts from -5
+/**
+ * Return codes of lcl library.
+ * OK code is 0.
+ * Codes between -1 and -4 are reserved for libbmp library.
+ * Lcl error codes start from -5.
  */
 enum lcl_return_code
 {
@@ -24,18 +26,33 @@ enum lcl_return_code
     LCL_THREAD_JOIN_FAIL,
 };
 
-/*
- * data is a column-major matrix
+/**
+ * A structure that specifies filter matrix.
+ *
+ * `data` - a column-major matrix of size `height` * `width`.
+ * `factor`, `bias` - after applying the filter, the factor will be
+ * multiplied with the result, and the bias added to it. Default filters
+ * have `factor` set to 1.0 and `bias` set to 0.0.
+ * `width` - number of elements in x-dimension.
+ * `height` - number of elements in y-dimension .
  */
 typedef struct
 {
     double** data;
     double factor;
     double bias;
-    int width;
-    int height;
+    unsigned int width;
+    unsigned int height;
 } lcl_filter_t;
 
+/**
+ * A structure that specifies the range of pixels of source image
+ * for a single thread to work on. Is used only when
+ * `enum lcl_work_mode mode` == `pile`.
+ * 
+ * [`start_w`, `end_w`) - pixels in x dimension.
+ * [`start_h`, `end_h`) - pixels in y dimension.
+ */
 typedef struct {
     unsigned int start_w;
     unsigned int start_h;
@@ -43,48 +60,123 @@ typedef struct {
     unsigned int end_h;
 } lcl_pile_t;
 
-enum work_mode {
-    pixel,
-    row,
-    column,
-    pile,
+/** A number that specifies how to divide work between threads.
+ * 
+ * `pixel` - every thread with `thread_id` = `i` works on every `i`'th pixel,
+ * from left to right, up to bottom.
+ * `row` - every thread with `thread_id` = `i` works on every `i`'th row,
+ * from up to bottom.
+ * `column` - every thread with `thread_id` = `i` works on every `i`'th column,
+ * from left to right.
+ * `pile` - thread works on a rectangle specified by `lcl_pile_t pile`.
+ */
+enum lcl_work_mode {
+    pixelwise,
+    rowwise,
+    columnwise,
+    pilewise,
 };
 
-struct arg {
+enum lcl_thread_kind {
+    reader,
+    writer,
+    worker,
+    multiple,
+};
+
+/**
+ * A structure that specifies information needed for a thread
+ * to perform an operation on an image.
+ * 
+ * `pile` - specifies a rectangle for a thread to work on. Is used only when
+ * `mode` == `pile`.
+ * `filter` - a pointer that specifies filter to be applied.
+ * `src` - a pointer that specifies source bmp image.
+ * Should be allocated with `bmp_img_read`.
+ * `targ` - a pointer that specifies target bmp image.
+ * Should be allocated with `bmp_img_read`.
+ * `mode` - a number that specifies how to divide work between threads.
+ * `thread_kind` - a number that specifies the kind of thread.
+ * `thread_id` - a unique number to identify this thread. Should be in range
+ * [0, `total_threads`).
+ * `total_threads` - total number of threads that are simultaneously executing
+ * some function.
+ */
+struct lcl_arg {
     lcl_pile_t pile;
     const lcl_filter_t* filter;
     const bmp_img* src;
     bmp_img* targ;
-    enum work_mode mode;
+    enum lcl_work_mode mode;
+    enum lcl_thread_kind thread_kind;
     unsigned int thread_id;
     unsigned int total_threads;
 };
 
 /*
- * 3x3 id filter
+ * Id filter 3x3.
  */
 extern lcl_filter_t id_filter;
 
 /*
- * 3x3 blur filter
+ * Blur filter 3x3.
  */
 extern lcl_filter_t blur_filter;
 
 /*
- * 5x5 blur filter
+ * Blur filter 5x5.
  */
 extern lcl_filter_t Blur_filter;
 
 /*
- * 7x7 blur filter
+ * Blur filter 7x7.
  */
 extern lcl_filter_t BLUR_filter;
 
+/**
+ * Allocate memory for filters and fill them with values.
+ * Should be used before working with the filters, the filters should then be
+ * freed with `lcl_free_filters`.
+ *
+ * Returns lcl_return_code.
+*/
 int lcl_init_filters(void);
+
+/**
+ * Free the memory taken by filters.
+ * Should be used after `lcl_init_filters` when filters are no longer needed.
+ */
 void lcl_free_filters(void);
 
+/**
+ * Apply filter to image, sequentially.
+ * 
+ * `filter` - a pointer that specifies filter to be applied.
+ * `src` - a pointer that specifies source bmp image.
+ * Should already be allocated with `bmp_img_read`.
+ * `targ` - a pointer that specifies target bmp image.
+ * Should already be allocated with `bmp_img_read`.
+ *
+ * Returns 0 and fills up `targ` on success.
+ * Returns `lcl_return_code` on error.
+ */
 int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
-int lcl_app_filter(enum work_mode mode, unsigned int nthreads,
+
+/**
+ * Apply filter to image, concurrently.
+ * 
+ * `mode` - a number that specifies how to divide work between threads.
+ * `nthreads` - number of threads to execute.
+ * `filter` - a pointer that specifies filter to be applied.
+ * `src` - `bmp_img` pointer that specifies source bmp image.
+ * Should already be allocated with `bmp_img_read`.
+ * `targ` - `bmp_img` pointer that specifies target bmp image.
+ * Should already be allocated with `bmp_img_read`.
+ *
+ * Returns 0 and fills up `targ` on success.
+ * Returns `lcl_return_code` on error.
+ */
+int lcl_app_filter(enum lcl_work_mode mode, unsigned int nthreads,
     const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
 
 #endif // LCL_COMMON_H

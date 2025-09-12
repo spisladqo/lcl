@@ -10,8 +10,8 @@
 
 #define NSEC_IN_SEC 1000000000.0
 
-static int test_app_filter(enum work_mode mode, unsigned int n, lcl_filter_t* filter,
-        const char* fname_src, const char* fname_targ, double *elapsed_s) {
+static int test_app_filter(enum lcl_work_mode mode, unsigned int n, lcl_filter_t* filter,
+    const char* fname_src, const char* fname_targ, double* elapsed_s) {
     struct timespec start, end;
     // double start, end;
     double sec, nsec;
@@ -57,12 +57,28 @@ static int test_app_filter(enum work_mode mode, unsigned int n, lcl_filter_t* fi
     return LCL_OK;
 }
 
+#define GET_MODE_NAME(mode, name)   \
+    switch (mode) {                 \
+    case pilewise:                  \
+            name = "pilewise";      \
+    break;                          \
+    case pixelwise:                 \
+            name = "pixelwise";     \
+    break;                          \
+    case rowwise:                   \
+            name = "rowwise";       \
+    break;                          \
+    default:                        \
+            name = "columnwise";    \
+    }
+
 #define FILTER BLUR_filter
 #define FILT_PREF "BLUR_"
 #define IMG_FILENAME "Mona_Lisa.bmp"
 
 #define IN_IMG_PATH (IN_IMG_DIR IMG_FILENAME)
 #define OUT_IMG_PATH (OUT_IMG_DIR FILT_PREF IMG_FILENAME)
+#define MODES_NUM 4
 
 int main() {
     lcl_init_filters();
@@ -71,17 +87,25 @@ int main() {
 
     int count = 5;
     int n = 1;
+    char* name;
 
-    printf("Test: pile\n");
-    for (int i = 0; i < count; i++) {
-        err = test_app_filter(pile, n, &FILTER, IN_IMG_PATH, OUT_IMG_PATH, &seconds);
-        if (err != LCL_OK) {
-            printf("Error %d\n", err);
-            lcl_free_filters();
-            return err;
+    enum lcl_work_mode work_modes[MODES_NUM] = { pilewise, pixelwise, rowwise, columnwise };
+
+    for (int j = 0; j < MODES_NUM; j++) {
+        GET_MODE_NAME(work_modes[j], name);
+        printf("Test: %s\n", name);
+
+        for (int i = 0; i < count; i++) {
+            err = test_app_filter(work_modes[j], n, &FILTER, IN_IMG_PATH, OUT_IMG_PATH, &seconds);
+            if (err != LCL_OK) {
+                printf("Error %d\n", err);
+                lcl_free_filters();
+                return err;
+            }
+            printf("Time elapsed, %s (n=%d): %lf s\n", name, n, seconds);
+            n *= 2;
         }
-        printf("Time elapsed, pile (n=%d): %lf s\n", n, seconds);
-        n *= 2;
+        n = 1;
     }
 
     lcl_free_filters();

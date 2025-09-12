@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#define FACT_DF (1.0)
-#define BIAS_DF (0.0)
+#define FACT_DF 1.0
+#define BIAS_DF 0.0
 
 /*
  * Simple 3x3 id filter
