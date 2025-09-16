@@ -1,9 +1,9 @@
-#include "../libbmp/libbmp.h"
-#include "common.h"
 #include <pthread.h>
 #include <stdlib.h>
+#include "../libbmp/libbmp.h"
+#include "common.h"
 
-static inline void* convolute(struct lcl_arg* arg, int x, int y, int w, int h) {
+static inline void* convolute_pixel(struct lcl_arg* arg, int x, int y, int w, int h) {
     bmp_img *src = arg->src;
     bmp_img *targ = arg->targ;
     lcl_filter_t *filter = arg->filter;
@@ -86,27 +86,27 @@ static void* app_filter(void *varg) {
     case pilewise:
         for (x = pile.start_w; x < w; x++) {
             for (y = pile.start_h; y < h; y++) {
-                convolute(arg, x, y, w, h);
+                convolute_pixel(arg, x, y, w, h);
             }
         }
     break;
     case pixelwise:
         for (y = 0; y < h; y++) {
             for (x = x % w; x < w; x += total_threads) {
-                convolute(arg, x, y, w, h);
+                convolute_pixel(arg, x, y, w, h);
             }
         }
     break;
     case rowwise:
         for (y = 0; y < h; y += total_threads) {
             for (x = 0; x < w; x++) {
-                convolute(arg, x, y, w, h);
+                convolute_pixel(arg, x, y, w, h);
             }
         }
     default:
         for (x = 0; x < w; x += total_threads) {
             for (y = 0; y < h; y++) {
-                convolute(arg, x, y, w, h);
+                convolute_pixel(arg, x, y, w, h);
             }
         }
     }

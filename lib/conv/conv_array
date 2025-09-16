@@ -1,0 +1,128 @@
+#include <pthread.h>
+#include <stdlib.h>
+#include "../libbmp/libbmp.h"
+#include "common.h"
+#include "queue.h"
+#define MAX_IMG_NUM 1000
+
+lcl_queue_t read_queue;
+lcl_queue_t work_queue;
+lcl_queue_t write_queue;
+
+static struct rw_arg {
+    pthread_mutex_t lock;
+    pthread_cond_t read_over;
+    bmp_img* img;
+    char* src;
+    char* targ;
+    int can_write;
+    int id;
+};
+
+static void* thread_read(void* varg) {
+
+    // printf("reader %d started!\n", arg->id);
+
+    // ret = bmp_img_read(img, name);
+    // if (ret) {
+    //     printf("could not read img from %s: error %d\n", name, ret);
+    //     return NULL;
+    // }
+
+    // printf("reader %d finished!\n", arg->id);
+    
+    // arg->can_write = 1;
+    // pthread_cond_signal(&arg->read_over);
+    
+    // // pthread_mutex_unlock(lock);
+
+    return NULL;
+}
+
+static void* thread_write(void* varg) {
+    struct rw_arg* arg = varg;
+    pthread_mutex_t* lock = &arg->lock;
+    bmp_img* img = arg->img;
+    char* name = arg->targ;
+
+    
+    pthread_mutex_lock(lock);
+    
+    while (!arg->can_write) {
+        pthread_cond_wait(&arg->read_over, lock);
+    }
+
+    printf("writer %d started!\n", arg->id);
+
+    int ret = bmp_img_write(img, name);
+
+    printf("writer %d finished!\n", arg->id);
+
+    pthread_mutex_unlock(lock);
+
+    if (ret) {
+        printf("could not write img to %s: error %d\n", name, ret);
+        return NULL;
+    }
+
+    return NULL;
+}
+
+#define READ_NUM 1
+#define WRITE_NUM 1
+#define WORK_NUM 1
+
+int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_work_mode* modes,
+                    lcl_filter_t** filters, int img_num, int readers_num,
+                    int workers_num, int writers_num) {
+    if (img_num < 0 || img_num > MAX_IMG_NUM) {
+        printf("img_num should be in range [0; %d]\n", MAX_IMG_NUM);
+        return LCL_INVALID_ARGUMENT;
+    }
+
+    if (!src_paths || !targ_paths || !modes || !filters) {
+        printf("array parameters should not be NULL\n");
+        return LCL_INVALID_ARGUMENT;
+    }
+
+    bmp_img src[img_num], targ[img_num];
+
+    for (int i = 0; i < img_num; i++) {
+        bmp_img_init_df(&src[i], 0, 0);
+        bmp_img_init_df(&targ[i], 0, 0);
+    }
+
+    pthread_t readers[readers_num];
+    pthread_t workers[workers_num];
+    pthread_t writers[writers_num];
+
+    for (int i = 0; i < readers_num; i++) {
+        pthread_create(thread_read)
+    }
+    for (int i = 0; i < workers_num; i++) {
+        pthread_create(thread_work)
+    }
+    for (int i = 0; i < writers_num; i++) {
+        pthread_create(thread_write)
+    }
+
+    for (int i = 0; i < readers_num; i++) {
+        void* ret;
+        pthread_join(readers[i], &ret);
+    }
+    for (int i = 0; i < workers_num; i++) {
+        void* ret;
+        pthread_join(workers[i], &ret);
+    }
+    for (int i = 0; i < writers_num; i++) {
+        void* ret;
+        pthread_join(writers[i], &ret);
+    }
+
+
+    // for (int i = 0; i < img_num; i++) {
+    //     pthread_mutex_destroy(&lock)
+    // }
+
+    return 0;
+}

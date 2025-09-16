@@ -163,7 +163,7 @@ void lcl_free_filters(void);
 int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
 
 /**
- * Apply filter to image, concurrently.
+ * Apply filter to an image, concurrently.
  * 
  * `mode` - a number that specifies how to divide work between threads.
  * `nthreads` - number of threads to execute.
@@ -178,5 +178,22 @@ int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* 
  */
 int lcl_app_filter(enum lcl_work_mode mode, unsigned int nthreads,
     const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+
+/**
+ * Read images from the filesystem, convolute them and
+ * write back to the filesystem.
+ * 
+ * `src_paths` - a pointer to array of paths in filesystem with source images.
+ * `targ_paths` - a pointer to array of paths in filesystem for output images.
+ * `modes` - a pointer to array of convolution modes for every according image.
+ * `filters` - a pointer to array of filters to apply to every according image.
+ * `img_num` - number of images. Every array argument should be of its size.
+ * `nthreads` - number of threads to execute.
+ *
+ * Returns 0 and saves images on `targ_paths` on success.
+ * Returns `lcl_return_code` on error.
+ */
+int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_work_mode* modes,
+                    lcl_filter_t** filters, int img_num, int nthreads);
 
 #endif // LCL_COMMON_H
