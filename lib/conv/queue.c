@@ -20,12 +20,18 @@ int lcl_queue_push(lcl_queue_t* queue, void* data) {
 
     lcl_queue_node_t* tail = queue->tail;
     lcl_queue_node_t* new_tail = create_node(NULL, data);
+
+    if (!queue->head) {
+        queue->head = new_tail;
+    }
     queue->tail = new_tail;
-    tail->next = new_tail;
+    if (tail) {
+        tail->next = new_tail;
+    }
 }
 
 void* lcl_queue_pop(lcl_queue_t* queue) {
-    if (!queue) {
+    if (!queue || !queue->head) {
         return NULL;
     }
 

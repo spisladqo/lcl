@@ -48,7 +48,7 @@ typedef struct
 /**
  * A structure that specifies the range of pixels of source image
  * for a single thread to work on. Is used only when
- * `enum lcl_work_mode mode` == `pile`.
+ * `enum lcl_conv_mode mode` == `pile`.
  * 
  * [`start_w`, `end_w`) - pixels in x dimension.
  * [`start_h`, `end_h`) - pixels in y dimension.
@@ -70,7 +70,7 @@ typedef struct {
  * from left to right.
  * `pile` - thread works on a rectangle specified by `lcl_pile_t pile`.
  */
-enum lcl_work_mode {
+enum lcl_conv_mode {
     pixelwise,
     rowwise,
     columnwise,
@@ -83,6 +83,22 @@ enum lcl_thread_kind {
     worker,
     multiple,
 };
+
+/**
+ * A structure specifying number of threads of each kind to execute.
+ * 
+ * `readers_num` - number of concurrent readers, 1 reader per image.
+ * `foremen_num` - number of concurrently convoluted images.
+ * `workers_num` - number of threads convoluting one image.
+ * `writers_num` - number of concurrent writers, 1 writer per image.
+ */
+typedef struct thread_jobs {
+    int readers_num;
+    int foremen_num;
+    int workers_num;
+    int writers_num;
+} thread_jobs_t;
+
 
 /**
  * A structure that specifies information needed for a thread
@@ -107,7 +123,7 @@ struct lcl_arg {
     const lcl_filter_t* filter;
     const bmp_img* src;
     bmp_img* targ;
-    enum lcl_work_mode mode;
+    enum lcl_conv_mode mode;
     enum lcl_thread_kind thread_kind;
     unsigned int thread_id;
     unsigned int total_threads;
@@ -176,7 +192,7 @@ int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* 
  * Returns 0 and fills up `targ` on success.
  * Returns `lcl_return_code` on error.
  */
-int lcl_app_filter(enum lcl_work_mode mode, unsigned int nthreads,
+int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
     const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
 
 /**
@@ -188,12 +204,12 @@ int lcl_app_filter(enum lcl_work_mode mode, unsigned int nthreads,
  * `modes` - a pointer to array of convolution modes for every according image.
  * `filters` - a pointer to array of filters to apply to every according image.
  * `img_num` - number of images. Every array argument should be of its size.
- * `nthreads` - number of threads to execute.
+ * `jobs` - structure specifying number of threads of each kind to execute.
  *
  * Returns 0 and saves images on `targ_paths` on success.
  * Returns `lcl_return_code` on error.
  */
-int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_work_mode* modes,
-                    lcl_filter_t** filters, int img_num, int nthreads);
+int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_conv_mode* modes,
+                    lcl_filter_t** filters, int img_num, thread_jobs_t jobs);
 
 #endif // LCL_COMMON_H

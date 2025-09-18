@@ -42,7 +42,7 @@ static void* app_filter(void *varg) {
     bmp_img* src = arg->src;
     bmp_img* targ = arg->targ;
 
-    enum lcl_work_mode mode = arg->mode;
+    enum lcl_conv_mode mode = arg->mode;
     enum lcl_thread_kind thread_kind = arg->thread_kind;
 
     int thread_id = arg->thread_id;
@@ -116,7 +116,7 @@ static void* app_filter(void *varg) {
     return ret;
 }
 
-int lcl_app_filter(enum lcl_work_mode mode, unsigned int nthreads,
+int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
     const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ) {
 
     if (nthreads > MAX_THREADS) {
