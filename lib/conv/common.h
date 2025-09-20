@@ -149,6 +149,27 @@ extern lcl_filter_t Blur_filter;
  */
 extern lcl_filter_t BLUR_filter;
 
+/*
+ * Edge detection filter 3x3.
+ */
+extern lcl_filter_t edge_filter;
+
+/*
+ * Sharpen filter 3x3.
+ */
+extern lcl_filter_t sharp_filter;
+
+/*
+ * Negative filter 3x3.
+ */
+extern lcl_filter_t negative_filter;
+
+/*
+ * Emboss filter 3x3.
+ */
+extern lcl_filter_t emboss_filter;
+
+
 /**
  * Allocate memory for filters and fill them with values.
  * Should be used before working with the filters, the filters should then be

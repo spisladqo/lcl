@@ -80,6 +80,75 @@ double* BLUR_filter_data_df[7] = {
 
 lcl_filter_t BLUR_filter;
 
+/*
+ * Edge detection filter
+ */
+double _edge_filter_data_df[3][3] = {
+    {-1, -1, -1 },
+    {-1,  8, -1 },
+    {-1, -1, -1 },
+};
+
+double* edge_filter_data_df[3] = {
+    _edge_filter_data_df[0],
+    _edge_filter_data_df[1],
+    _edge_filter_data_df[2],
+};
+
+lcl_filter_t edge_filter;
+
+/*
+ * Sharpen filter
+ */
+double _sharp_filter_data_df[3][3] = {
+    {  0, -1,  0 },
+    { -1,  5, -1 },
+    {  0, -1,  0 },
+};
+
+double* sharp_filter_data_df[3] = {
+    _sharp_filter_data_df[0],
+    _sharp_filter_data_df[1],
+    _sharp_filter_data_df[2],
+};
+
+lcl_filter_t sharp_filter;
+
+/*
+ * Negative filter
+ */
+double _negative_filter_data_df[3][3] = {
+    { 1,  0,  0 },
+    { 0,  1,  0 },
+    { 0,  0,  1 },
+};
+
+double* negative_filter_data_df[3] = {
+    _negative_filter_data_df[0],
+    _negative_filter_data_df[1],
+    _negative_filter_data_df[2],
+};
+
+lcl_filter_t negative_filter;
+
+/*
+ * Emboss filter
+ */
+double _emboss_filter_data_df[3][3] = {
+    { -1, -1,  0 },
+    { -1,  0,  1 },
+    {  0,  1,  1 },
+};
+
+double* emboss_filter_data_df[3] = {
+    _emboss_filter_data_df[0],
+    _emboss_filter_data_df[1],
+    _emboss_filter_data_df[2],
+};
+
+lcl_filter_t emboss_filter;
+
+
 static int init_filter(lcl_filter_t* filter, double** data_arr,
     double factor, double bias, int width, int height) {
     double** data = malloc(sizeof(double*) * width);
@@ -123,6 +192,10 @@ int lcl_init_filters(void) {
     init_filter_df(&blur_filter, blur_filter_data_df, 3, 3);
     init_filter_df(&Blur_filter, Blur_filter_data_df, 5, 5);
     init_filter_df(&BLUR_filter, BLUR_filter_data_df, 7, 7);
+    init_filter_df(&edge_filter, edge_filter_data_df, 3, 3);
+    init_filter_df(&sharp_filter, sharp_filter_data_df, 3, 3);
+    init_filter_df(&negative_filter, negative_filter_data_df, 3, 3);
+    init_filter_df(&emboss_filter, emboss_filter_data_df, 3, 3);
 }
 
 static void free_filter(lcl_filter_t* filter) {
@@ -142,4 +215,8 @@ void lcl_free_filters(void) {
     free_filter(&blur_filter);
     free_filter(&Blur_filter);
     free_filter(&BLUR_filter);
+    free_filter(&edge_filter);
+    free_filter(&sharp_filter);
+    free_filter(&negative_filter);
+    free_filter(&emboss_filter);
 }
