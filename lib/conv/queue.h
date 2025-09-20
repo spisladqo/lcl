@@ -1,3 +1,6 @@
+#ifndef LCL_QUEUE_H
+#define LCL_QUEUE_H
+
 typedef struct lcl_queue_node {
     struct lcl_queue_node* next;
     void* data;
@@ -10,3 +13,5 @@ typedef struct lcl_queue {
 
 int lcl_queue_push(lcl_queue_t* queue, void* data);
 void* lcl_queue_pop(lcl_queue_t* queue);
+
+#endif

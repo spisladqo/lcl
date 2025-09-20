@@ -4,7 +4,6 @@
 #include "../libbmp/libbmp.h"
 #include "common.h"
 #include "queue.h"
-#define MAX_IMG_NUM 1000
 
 lcl_queue_t read_queue;
 lcl_queue_t fore_queue;
@@ -17,25 +16,6 @@ pthread_mutex_t write_lock;
 int fore_tasks_ready, write_tasks_ready;
 int read_done, fore_done, write_done;
 pthread_cond_t fore_cv, write_cv;
-
-struct task {
-    bmp_img* src;
-    bmp_img* targ;
-    char* src_path;
-    char* targ_path;
-    lcl_filter_t* filter;
-    enum lcl_conv_mode conv_mode;
-};
-
-typedef struct task task_t;
-
-static struct thread_arg {
-    pthread_mutex_t* read_lock;
-    pthread_mutex_t* fore_lock;
-    pthread_mutex_t* write_lock;
-    int workers_num;
-};
-typedef struct thread_arg thread_arg_t;
 
 static void* reader_job(void* thr_arg) {
     thread_arg_t* arg = thr_arg;

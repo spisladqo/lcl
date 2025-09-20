@@ -9,6 +9,7 @@
 #define absl(a) (a > 0 ? a : -a)
 
 #define MAX_THREADS 1024
+#define MAX_IMG_NUM 1000
 
 /**
  * Return codes of lcl library.
@@ -128,6 +129,25 @@ struct lcl_arg {
     unsigned int thread_id;
     unsigned int total_threads;
 };
+
+struct task {
+    bmp_img* src;
+    bmp_img* targ;
+    char* src_path;
+    char* targ_path;
+    lcl_filter_t* filter;
+    enum lcl_conv_mode conv_mode;
+};
+
+typedef struct task task_t;
+
+struct thread_arg {
+    pthread_mutex_t* read_lock;
+    pthread_mutex_t* fore_lock;
+    pthread_mutex_t* write_lock;
+    int workers_num;
+};
+typedef struct thread_arg thread_arg_t;
 
 /*
  * Id filter 3x3.
