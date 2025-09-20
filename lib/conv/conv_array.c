@@ -27,7 +27,6 @@ struct task {
     enum lcl_conv_mode conv_mode;
 };
 
-
 typedef struct task task_t;
 
 static struct thread_arg {
@@ -71,14 +70,8 @@ static void* reader_job(void* thr_arg) {
         pthread_mutex_unlock(fore_lock);
 
         pthread_cond_signal(&fore_cv);
-        
-        // printf("6\n");
-        // pthread_mutex_lock(read_lock);
-        // read_done = read_queue.head == NULL;
-        // pthread_mutex_unlock(read_lock);
-        // printf("7\n");
-
     }
+    printf("reader finished\n");
 }
 
 static void* foreman_job(void* thr_arg) {
@@ -87,25 +80,27 @@ static void* foreman_job(void* thr_arg) {
     pthread_mutex_t* fore_lock = arg->fore_lock;
     pthread_mutex_t* write_lock = arg->write_lock;
 
-    int fore_done = 0;
+    fore_done = 0;
 
     while (!fore_done) {
+        // while (!)
         pthread_mutex_lock(fore_lock);
-        while (fore_tasks_ready <= 0) {
+        while (fore_tasks_ready == 0) {
             pthread_cond_wait(&fore_cv, fore_lock);
         }
         task_t* task = lcl_queue_pop(&fore_queue);
-        fore_tasks_ready--;
-        if (fore_tasks_ready <= 0) {
-            pthread_mutex_lock(read_lock);
-            if (read_done) {
-                fore_done = 1;
-            }
-            pthread_mutex_unlock(read_lock);
-        }
         printf(" foreman took task!\n");
+        fore_tasks_ready--;
         pthread_mutex_unlock(fore_lock);
 
+        pthread_mutex_lock(read_lock);
+        pthread_mutex_lock(fore_lock);
+        if (fore_tasks_ready <= 0 && read_done) {
+            fore_done = 1;
+        }
+        pthread_mutex_unlock(fore_lock);
+        pthread_mutex_unlock(read_lock);
+        
         bmp_img* src = task->src;
         bmp_img* targ = task->targ;
         enum lcl_conv_mode mode = task->conv_mode;
@@ -121,21 +116,8 @@ static void* foreman_job(void* thr_arg) {
         pthread_mutex_unlock(write_lock);
 
         pthread_cond_signal(&write_cv);
-
-        pthread_mutex_lock(read_lock);
-        pthread_mutex_lock(fore_lock);
-        // if (read_done && fore_tasks_ready <= 0) {
-        //     fore_done = 1;
-        // }
-        // if (read_done && fore_tasks_ready <= 0) {
-        //     fore_done = 1;
-        //     pthread_mutex_unlock(fore_lock);
-        //     pthread_mutex_unlock(read_lock);
-        //     break;
-        // }
-        pthread_mutex_unlock(fore_lock);
-        pthread_mutex_unlock(read_lock);
     }
+    printf("foreman finished\n");
 }
 
 static void* writer_job(void* thr_arg) {
@@ -143,23 +125,24 @@ static void* writer_job(void* thr_arg) {
     pthread_mutex_t* read_lock = arg->read_lock;
     pthread_mutex_t* fore_lock = arg->fore_lock;
     pthread_mutex_t* write_lock = arg->write_lock;
-    int write_done = 0;
+    write_done = 0;
 
     while (!write_done) {
         pthread_mutex_lock(write_lock);
-        while (write_tasks_ready <= 0) {
+        while (write_tasks_ready == 0) {
             pthread_cond_wait(&write_cv, write_lock);
         }
         task_t* task = lcl_queue_pop(&write_queue);
         printf("  writer took task!\n");
         write_tasks_ready--;
-        if (write_tasks_ready <= 0) {
-            pthread_mutex_lock(fore_lock);
-            if (fore_done) {
-                write_done = 1;
-            }
-            pthread_mutex_unlock(fore_lock);
+        pthread_mutex_unlock(write_lock);
+
+        pthread_mutex_lock(fore_lock);
+        pthread_mutex_lock(write_lock);
+        if (write_tasks_ready <= 0 && fore_done) {
+            write_done = 1;
         }
+        pthread_mutex_unlock(fore_lock);
         pthread_mutex_unlock(write_lock);
 
         bmp_img* targ = task->targ;
@@ -168,19 +151,12 @@ static void* writer_job(void* thr_arg) {
         if (ret) {
             printf("could not write img %s to src: error %d\n", targ_path, ret);
         }
-        
-        pthread_mutex_lock(fore_lock);
+
         pthread_mutex_lock(write_lock);
-        // int read_done = read_queue.head == NULL;
-        // int fore_done = fore_queue.head == NULL;
-        // write_done = write_queue.head == NULL && fore_done && read_done;
-        // if (fore_done && write_tasks_ready <= 0) {
-        //     write_done = 1;
-        // }
         printf("  writer wrote img!\n");
         pthread_mutex_unlock(write_lock);
-        pthread_mutex_unlock(fore_lock);
     }
+    printf("writer finished\n");
 }
 
 int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_conv_mode* modes,

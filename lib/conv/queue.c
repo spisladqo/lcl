@@ -20,14 +20,19 @@ int lcl_queue_push(lcl_queue_t* queue, void* data) {
 
     lcl_queue_node_t* tail = queue->tail;
     lcl_queue_node_t* new_tail = create_node(NULL, data);
+    if (!new_tail) {
+        return 1;
+    }
 
-    if (!queue->head) {
+    if (!queue->tail) {
         queue->head = new_tail;
+        queue->tail = new_tail;
+    } else {
+        queue->tail->next = new_tail;
+        queue->tail = new_tail;
     }
-    queue->tail = new_tail;
-    if (tail) {
-        tail->next = new_tail;
-    }
+
+    return 0;
 }
 
 void* lcl_queue_pop(lcl_queue_t* queue) {
@@ -38,6 +43,9 @@ void* lcl_queue_pop(lcl_queue_t* queue) {
     lcl_queue_node_t* head = queue->head;
     lcl_queue_node_t* new_head = head->next;
     queue->head = new_head;
+    if (queue->tail == head) {
+        queue->tail = new_head;
+    }
 
     void* data = head->data;
     destroy_node(head);
