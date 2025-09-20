@@ -123,6 +123,14 @@ int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
         printf("%u exceeds max number of threads: %u\n", nthreads, MAX_THREADS);
         return LCL_INVALID_ARGUMENT;
     }
+    if (nthreads < 0) {
+        printf("nthreads cannot be less than zero!\n");
+        return LCL_INVALID_ARGUMENT;
+    }
+    if (!filter || !src || !targ) {
+        printf("pointer arguments should not be null!\n");
+        return LCL_INVALID_ARGUMENT;
+    }
 
     void* rets[nthreads];
     struct lcl_arg args[nthreads];
