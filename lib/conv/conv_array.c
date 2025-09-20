@@ -43,17 +43,15 @@ static void* reader_job(void* thr_arg) {
     pthread_mutex_t* fore_lock = arg->fore_lock;
     read_done = 0;
 
-    // printf("reader started!\n");
-
     while (!read_done) {
         pthread_mutex_lock(read_lock);
         task_t* task = lcl_queue_pop(&read_queue);
         if (!task) {
             read_done = 1;
             pthread_mutex_unlock(read_lock);
+            pthread_cond_broadcast(&fore_cv);
             break;
         }
-        // printf("reader took task!\n");
         pthread_mutex_unlock(read_lock);
 
         bmp_img* src = task->src;
@@ -72,13 +70,10 @@ static void* reader_job(void* thr_arg) {
 
         pthread_mutex_lock(fore_lock);
         lcl_queue_push(&fore_queue, task);
-        // printf("reader pushed task!\n");
         fore_tasks_ready++;
         pthread_mutex_unlock(fore_lock);
-
         pthread_cond_signal(&fore_cv);
     }
-    // printf("reader finished\n");
 }
 
 static void* foreman_job(void* thr_arg) {
@@ -86,7 +81,6 @@ static void* foreman_job(void* thr_arg) {
     pthread_mutex_t* read_lock = arg->read_lock;
     pthread_mutex_t* fore_lock = arg->fore_lock;
     pthread_mutex_t* write_lock = arg->write_lock;
-
     fore_done = 0;
 
     while (!fore_done) {
@@ -95,17 +89,8 @@ static void* foreman_job(void* thr_arg) {
             pthread_cond_wait(&fore_cv, fore_lock);
         }
         task_t* task = lcl_queue_pop(&fore_queue);
-        // printf(" foreman took task!\n");
         fore_tasks_ready--;
         pthread_mutex_unlock(fore_lock);
-
-        pthread_mutex_lock(read_lock);
-        pthread_mutex_lock(fore_lock);
-        if (fore_tasks_ready <= 0 && read_done) {
-            fore_done = 1;
-        }
-        pthread_mutex_unlock(fore_lock);
-        pthread_mutex_unlock(read_lock);
         
         bmp_img* src = task->src;
         bmp_img* targ = task->targ;
@@ -117,13 +102,20 @@ static void* foreman_job(void* thr_arg) {
 
         pthread_mutex_lock(write_lock);
         lcl_queue_push(&write_queue, task);
-        // printf(" foreman pushed task!\n");
         write_tasks_ready++;
         pthread_mutex_unlock(write_lock);
 
+        pthread_mutex_lock(read_lock);
+        pthread_mutex_lock(fore_lock);
+        if (fore_tasks_ready <= 0 && read_done) {
+            fore_done = 1;
+            pthread_cond_broadcast(&write_cv);
+        }
+        pthread_mutex_unlock(fore_lock);
+        pthread_mutex_unlock(read_lock);
+
         pthread_cond_signal(&write_cv);
     }
-    // printf("foreman finished\n");
 }
 
 static void* writer_job(void* thr_arg) {
@@ -139,17 +131,16 @@ static void* writer_job(void* thr_arg) {
             pthread_cond_wait(&write_cv, write_lock);
         }
         task_t* task = lcl_queue_pop(&write_queue);
-        // printf("  writer took task!\n");
         write_tasks_ready--;
         pthread_mutex_unlock(write_lock);
-
+        
         pthread_mutex_lock(fore_lock);
         pthread_mutex_lock(write_lock);
         if (write_tasks_ready <= 0 && fore_done) {
             write_done = 1;
         }
-        pthread_mutex_unlock(fore_lock);
         pthread_mutex_unlock(write_lock);
+        pthread_mutex_unlock(fore_lock);
 
         bmp_img* targ = task->targ;
         char* targ_path = task->targ_path;
@@ -158,11 +149,7 @@ static void* writer_job(void* thr_arg) {
             printf("could not write img %s to src: error %d\n", targ_path, ret);
         }
 
-        pthread_mutex_lock(write_lock);
-        // printf("  writer wrote img!\n");
-        pthread_mutex_unlock(write_lock);
     }
-    // printf("writer finished\n");
 }
 
 int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_conv_mode* modes,
