@@ -21,12 +21,12 @@ static int fore_tasks_ready, write_tasks_ready;
 static int read_done, fore_done, write_done;
 static pthread_cond_t fore_cv, write_cv;
 
-static void test_lcl_conv_array_invalid_img_num(void **state) {
+static void test_invalid_img_num(void **state) {
     assert_int_equal(lcl_conv_array(NULL, NULL, NULL, NULL, -1, (thread_jobs_t){0}), LCL_INVALID_ARGUMENT);
     assert_int_equal(lcl_conv_array(NULL, NULL, NULL, NULL, MAX_IMG_NUM + 1, (thread_jobs_t){0}), LCL_INVALID_ARGUMENT);
 }
 
-static void test_lcl_conv_array_null_arrays(void **state) {
+static void test_nullptrs(void **state) {
     char* src_paths[] = {"test1.bmp", "test2.bmp"};
     char* targ_paths[] = {"out1.bmp", "out2.bmp"};
     enum lcl_conv_mode modes[] = {pilewise, pilewise};
@@ -38,7 +38,7 @@ static void test_lcl_conv_array_null_arrays(void **state) {
     assert_int_equal(lcl_conv_array(src_paths, targ_paths, modes, NULL, 2, (thread_jobs_t){0}), LCL_INVALID_ARGUMENT);
 }
 
-static void test_lcl_conv_array_minimal_config(void **state) {
+static void test_lcl_conv_array1(void **state) {
     char* src_paths[] = {"test.bmp"};
     char* targ_paths[] = {"out.bmp"};
     enum lcl_conv_mode modes[] = {pilewise};
@@ -47,9 +47,11 @@ static void test_lcl_conv_array_minimal_config(void **state) {
     
     thread_jobs_t jobs = {1, 1, 1, 1};
     assert_int_equal(lcl_conv_array(src_paths, targ_paths, modes, filters, 1, jobs), LCL_OK);
+
+    remove("out.bmp");
 }
 
-static void test_lcl_conv_array_multiple_images(void **state) {
+static void test_lcl_conv_array2(void **state) {
     char* src_paths[] = {"test1.bmp", "test2.bmp"};
     char* targ_paths[] = {"out1.bmp", "out2.bmp"};
     enum lcl_conv_mode modes[] = {pilewise, pixelwise};
@@ -59,14 +61,17 @@ static void test_lcl_conv_array_multiple_images(void **state) {
     
     thread_jobs_t jobs = {2, 2, 2, 2};
     assert_int_equal(lcl_conv_array(src_paths, targ_paths, modes, filters, 2, jobs), LCL_OK);
+
+    remove("out1.bmp");
+    remove("out2.bmp");
 }
 
 int test_conv_array(void) {
     const struct CMUnitTest test_conv_array[] = {
-        cmocka_unit_test(test_lcl_conv_array_invalid_img_num),
-        cmocka_unit_test(test_lcl_conv_array_null_arrays),
-        cmocka_unit_test(test_lcl_conv_array_minimal_config),
-        cmocka_unit_test(test_lcl_conv_array_multiple_images),
+        cmocka_unit_test(test_invalid_img_num),
+        cmocka_unit_test(test_nullptrs),
+        cmocka_unit_test(test_lcl_conv_array1),
+        cmocka_unit_test(test_lcl_conv_array2),
     };
     
     return cmocka_run_group_tests(test_conv_array, NULL, NULL);
