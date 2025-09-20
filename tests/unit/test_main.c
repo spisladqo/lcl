@@ -3,15 +3,14 @@
 #include <setjmp.h>
 #include <stdlib.h>
 #include <cmocka.h>
-#include "../../lib/conv/common.h"
-
-extern int test_app_filter_seq(void);
+#include "common.h"
 
 int main(void) {
     lcl_init_filters();
     int result = 0;
     
     result |= test_app_filter_seq();
+    result |= test_app_filter();
 
     lcl_free_filters();
     return result;
