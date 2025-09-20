@@ -57,10 +57,17 @@ static void* reader_job(void* thr_arg) {
         pthread_mutex_unlock(read_lock);
 
         bmp_img* src = task->src;
+        bmp_img* targ = task->targ;
         char* src_path = task->src_path;
+        char* targ_path = task->src_path;
+
         int ret = bmp_img_read(src, src_path);
         if (ret) {
             printf("could not read img %s to src: error %d\n", src_path, ret);
+        }
+        ret = bmp_img_read(targ, targ_path);
+        if (ret) {
+            printf("could not read img %s to targ: error %d\n", targ_path, ret);
         }
 
         pthread_mutex_lock(fore_lock);
