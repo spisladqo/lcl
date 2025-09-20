@@ -12,6 +12,9 @@ CC=gcc
 all:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(TEST_CONV_DIR)/test.c -o $(PROJECT) $(CFLAGS)
 
+debug:
+	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(TEST_CONV_DIR)/test.c -g -fsanitize=address -o $(PROJECT) $(CFLAGS)
+
 clean-img:
 	rm -rf $(IMG_SERIAL_OUT_DIR)/*
 
