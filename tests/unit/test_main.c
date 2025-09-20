@@ -11,6 +11,7 @@ int main(void) {
     
     result |= test_app_filter_seq();
     result |= test_app_filter();
+    result |= test_conv_array();
 
     lcl_free_filters();
     return result;
