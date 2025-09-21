@@ -1,17 +1,24 @@
 PROJECT=liblcl
+
 IMG_OUT_DIR=images/output
 IMG_SERIAL_OUT_DIR=$(IMG_OUT_DIR)/serial
+
 LIB=lib
 TESTS=tests
+
 LIB_CONV_DIR=$(LIB)/conv
 LIB_LIBBMP_DIR=$(LIB)/libbmp
 TEST_CONV_DIR=$(TESTS)/conv
+PARSE_DIR = $(LIB)/parse
 
 BENCH_DIR=$(TESTS)/benchmarks
 
 CC=gcc
 
 all:
+	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(PARSE_DIR)/*.c -o lcl $(CFLAGS)
+
+lib:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* -o $(PROJECT) $(CFLAGS)
 
 debug:
