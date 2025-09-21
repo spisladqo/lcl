@@ -18,7 +18,7 @@ debug:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* -g -fsanitize=address -o $(PROJECT) $(CFLAGS)
 
 bench:
-	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(BENCH_DIR)/* -o $(PROJECT)_bench
+	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(BENCH_DIR)/*.c -o $(PROJECT)_bench
 
 test:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* -Wall -Wextra -g $(TESTS)/unit/* -o $(PROJECT)_tests -lcmocka
@@ -26,5 +26,11 @@ test:
 clean-img:
 	rm -rf $(IMG_SERIAL_OUT_DIR)/*
 
-clean: clean-img
+clean-bench:
+	rm liblcl_bench
+
+clean-tests:
+	rm liblcl_tests
+
+clean: clean-img clean-bench clean-tests
 	rm -f $(PROJECT)
