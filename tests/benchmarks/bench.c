@@ -267,8 +267,8 @@ int main(void) {
     for (int k = 0; k < img_num; k++) {
         for (int i = 0; i < N; i++) {
             // printf("iteration %d, ", i);
-            test_app_filter_seq(&blur_filter, PATH_IN SMALL_IMG, PATH_OUT SMALL_IMG,
-                                &elapsed);
+            test_app_filter_seq(&blur_filter, PATH_IN SMALL_IMG,
+                                PATH_OUT SMALL_IMG, &elapsed);
             printf("%0.4f ", elapsed);
             avg += elapsed;
         }
@@ -286,7 +286,8 @@ int main(void) {
             for (int i = 0; i < N; i++) {
                 // printf("iteration %d, ", i);
                 test_app_filter(modes[i], thread_num, &blur_filter,
-                                PATH_IN SMALL_IMG, PATH_OUT SMALL_IMG, &elapsed);
+                                PATH_IN SMALL_IMG, PATH_OUT SMALL_IMG,
+                                &elapsed);
                 printf("%0.4f ", elapsed);
                 avg += elapsed;
             }
