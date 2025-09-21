@@ -1,9 +1,11 @@
 #include <pthread.h>
 #include <stdlib.h>
+
 #include "../libbmp/libbmp.h"
 #include "common.h"
 
-static inline void* convolute_pixel(struct lcl_arg* arg, int x, int y, int w, int h) {
+static inline void *convolute_pixel(struct lcl_arg *arg, int x, int y, int w,
+                                    int h) {
     bmp_img *src = arg->src;
     bmp_img *targ = arg->targ;
     lcl_filter_t *filter = arg->filter;
@@ -13,34 +15,39 @@ static inline void* convolute_pixel(struct lcl_arg* arg, int x, int y, int w, in
     double red = 0.0;
     double green = 0.0;
     double blue = 0.0;
-    
+
     for (int filter_y = 0; filter_y < filter_h; filter_y++) {
         for (int filter_x = 0; filter_x < filter_w; filter_x++) {
             int img_x = (x - filter_w / 2 + filter_x + w) % w;
             int img_y = (y - filter_h / 2 + filter_y + h) % h;
 
-            red += src->img_pixels[img_y][img_x].red * filter->data[filter_y][filter_x];
-            green += src->img_pixels[img_y][img_x].green * filter->data[filter_y][filter_x];
-            blue += src->img_pixels[img_y][img_x].blue * filter->data[filter_y][filter_x];
+            red += src->img_pixels[img_y][img_x].red *
+                   filter->data[filter_y][filter_x];
+            green += src->img_pixels[img_y][img_x].green *
+                     filter->data[filter_y][filter_x];
+            blue += src->img_pixels[img_y][img_x].blue *
+                    filter->data[filter_y][filter_x];
         }
     }
     unsigned char new_red = min(absl(filter->factor * red + filter->bias), 255);
-    unsigned char new_green = min(absl(filter->factor * green + filter->bias), 255);
-    unsigned char new_blue = min(absl(filter->factor * blue + filter->bias), 255);
+    unsigned char new_green =
+        min(absl(filter->factor * green + filter->bias), 255);
+    unsigned char new_blue =
+        min(absl(filter->factor * blue + filter->bias), 255);
 
     targ->img_pixels[y][x].red = new_red;
     targ->img_pixels[y][x].green = new_green;
     targ->img_pixels[y][x].blue = new_blue;
 }
 
-static void* app_filter(void *varg) {
-    struct lcl_arg* arg = varg;
+static void *app_filter(void *varg) {
+    struct lcl_arg *arg = varg;
 
     lcl_pile_t pile = arg->pile;
-    lcl_filter_t* filter = arg->filter;
+    lcl_filter_t *filter = arg->filter;
 
-    bmp_img* src = arg->src;
-    bmp_img* targ = arg->targ;
+    bmp_img *src = arg->src;
+    bmp_img *targ = arg->targ;
 
     enum lcl_conv_mode mode = arg->mode;
     enum lcl_thread_kind thread_kind = arg->thread_kind;
@@ -48,7 +55,7 @@ static void* app_filter(void *varg) {
     int thread_id = arg->thread_id;
     int total_threads = arg->total_threads;
 
-    int* ret = malloc(sizeof(int));
+    int *ret = malloc(sizeof(int));
     if (!ret) {
         return NULL;
     }
@@ -83,32 +90,32 @@ static void* app_filter(void *varg) {
     int filter_h = filter->height;
 
     switch (mode) {
-    case pilewise:
-        for (x = pile.start_w; x < w; x++) {
-            for (y = pile.start_h; y < h; y++) {
-                convolute_pixel(arg, x, y, w, h);
+        case pilewise:
+            for (x = pile.start_w; x < w; x++) {
+                for (y = pile.start_h; y < h; y++) {
+                    convolute_pixel(arg, x, y, w, h);
+                }
             }
-        }
-    break;
-    case pixelwise:
-        for (y = 0; y < h; y++) {
-            for (x = x % w; x < w; x += total_threads) {
-                convolute_pixel(arg, x, y, w, h);
-            }
-        }
-    break;
-    case rowwise:
-        for (y = 0; y < h; y += total_threads) {
-            for (x = 0; x < w; x++) {
-                convolute_pixel(arg, x, y, w, h);
-            }
-        }
-    default:
-        for (x = 0; x < w; x += total_threads) {
+            break;
+        case pixelwise:
             for (y = 0; y < h; y++) {
-                convolute_pixel(arg, x, y, w, h);
+                for (x = x % w; x < w; x += total_threads) {
+                    convolute_pixel(arg, x, y, w, h);
+                }
             }
-        }
+            break;
+        case rowwise:
+            for (y = 0; y < h; y += total_threads) {
+                for (x = 0; x < w; x++) {
+                    convolute_pixel(arg, x, y, w, h);
+                }
+            }
+        default:
+            for (x = 0; x < w; x += total_threads) {
+                for (y = 0; y < h; y++) {
+                    convolute_pixel(arg, x, y, w, h);
+                }
+            }
     }
 
     *ret = LCL_OK;
@@ -117,8 +124,8 @@ static void* app_filter(void *varg) {
 }
 
 int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
-    const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ) {
-
+                   const lcl_filter_t *filter, const bmp_img *src,
+                   bmp_img *targ) {
     if (nthreads > MAX_THREADS) {
         printf("%u exceeds max number of threads: %u\n", nthreads, MAX_THREADS);
         return LCL_INVALID_ARGUMENT;
@@ -132,7 +139,7 @@ int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
         return LCL_INVALID_ARGUMENT;
     }
 
-    void* rets[nthreads];
+    void *rets[nthreads];
     struct lcl_arg args[nthreads];
     int errs[nthreads];
     pthread_t threads[nthreads];
@@ -148,8 +155,9 @@ int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
             .end_h = src_end_h,
         };
 
-        // printf("thread %d works from %d to %d\n", i, pile.start_w, pile.end_w);
-        args[i] = (struct lcl_arg) {
+        // printf("thread %d works from %d to %d\n", i, pile.start_w,
+        // pile.end_w);
+        args[i] = (struct lcl_arg){
             .pile = pile,
             .filter = filter,
             .src = src,
@@ -165,7 +173,7 @@ int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
 
     for (int i = 0; i < nthreads; i++) {
         pthread_join(threads[i], &rets[i]);
-        errs[i] = *(int*)rets[i];
+        errs[i] = *(int *)rets[i];
         free(rets[i]);
     }
 

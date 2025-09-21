@@ -12,14 +12,12 @@ TEST_CONV_DIR=$(TESTS)/conv
 PARSE_DIR = $(LIB)/parse
 
 BENCH_DIR=$(TESTS)/benchmarks
+UNIT_DIR=$(TESTS)/unit
 
 CC=gcc
 
 all:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(PARSE_DIR)/*.c -o lcl $(CFLAGS)
-
-lib:
-	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* -o $(PROJECT) $(CFLAGS)
 
 debug:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* -g -fsanitize=address -o $(PROJECT) $(CFLAGS)
@@ -29,15 +27,16 @@ bench:
 
 test:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* -Wall -Wextra -g $(TESTS)/unit/* -o $(PROJECT)_tests -lcmocka
+# 	./$(PROJECT)_tests
+
+fmt:
+	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4}" -i $(LIB_CONV_DIR)/* $(PARSE_DIR)/* $(UNIT_DIR)/* $(BENCH_DIR)/*
 
 clean-img:
 	rm -rf $(IMG_SERIAL_OUT_DIR)/*
 
-clean-bench:
-	rm liblcl_bench
-
-clean-tests:
-	rm liblcl_tests
-
-clean: clean-img clean-bench clean-tests
+clean: clean-img
 	rm -f $(PROJECT)
+	rm -f liblcl_tests
+	rm -f liblcl_bench
+	rm -f lcl

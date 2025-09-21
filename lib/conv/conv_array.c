@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "../libbmp/libbmp.h"
 #include "common.h"
 #include "queue.h"
@@ -17,15 +18,15 @@ int fore_tasks_ready, write_tasks_ready;
 int read_done, fore_done, write_done;
 pthread_cond_t fore_cv, write_cv;
 
-static void* reader_job(void* thr_arg) {
-    thread_arg_t* arg = thr_arg;
-    pthread_mutex_t* read_lock = arg->read_lock;
-    pthread_mutex_t* fore_lock = arg->fore_lock;
+static void *reader_job(void *thr_arg) {
+    thread_arg_t *arg = thr_arg;
+    pthread_mutex_t *read_lock = arg->read_lock;
+    pthread_mutex_t *fore_lock = arg->fore_lock;
     read_done = 0;
 
     while (!read_done) {
         pthread_mutex_lock(read_lock);
-        task_t* task = lcl_queue_pop(&read_queue);
+        task_t *task = lcl_queue_pop(&read_queue);
         if (!task) {
             read_done = 1;
             pthread_mutex_unlock(read_lock);
@@ -34,10 +35,10 @@ static void* reader_job(void* thr_arg) {
         }
         pthread_mutex_unlock(read_lock);
 
-        bmp_img* src = task->src;
-        bmp_img* targ = task->targ;
-        char* src_path = task->src_path;
-        char* targ_path = task->src_path;
+        bmp_img *src = task->src;
+        bmp_img *targ = task->targ;
+        char *src_path = task->src_path;
+        char *targ_path = task->src_path;
 
         int ret = bmp_img_read(src, src_path);
         if (ret) {
@@ -56,11 +57,11 @@ static void* reader_job(void* thr_arg) {
     }
 }
 
-static void* foreman_job(void* thr_arg) {
-    thread_arg_t* arg = thr_arg;
-    pthread_mutex_t* read_lock = arg->read_lock;
-    pthread_mutex_t* fore_lock = arg->fore_lock;
-    pthread_mutex_t* write_lock = arg->write_lock;
+static void *foreman_job(void *thr_arg) {
+    thread_arg_t *arg = thr_arg;
+    pthread_mutex_t *read_lock = arg->read_lock;
+    pthread_mutex_t *fore_lock = arg->fore_lock;
+    pthread_mutex_t *write_lock = arg->write_lock;
     fore_done = 0;
 
     while (!fore_done) {
@@ -68,15 +69,15 @@ static void* foreman_job(void* thr_arg) {
         while (fore_tasks_ready == 0) {
             pthread_cond_wait(&fore_cv, fore_lock);
         }
-        task_t* task = lcl_queue_pop(&fore_queue);
+        task_t *task = lcl_queue_pop(&fore_queue);
         fore_tasks_ready--;
         pthread_mutex_unlock(fore_lock);
-        
-        bmp_img* src = task->src;
-        bmp_img* targ = task->targ;
+
+        bmp_img *src = task->src;
+        bmp_img *targ = task->targ;
         enum lcl_conv_mode mode = task->conv_mode;
         int work_num = arg->workers_num;
-        lcl_filter_t* filter = task->filter;
+        lcl_filter_t *filter = task->filter;
 
         lcl_app_filter(mode, work_num, filter, src, targ);
 
@@ -98,11 +99,11 @@ static void* foreman_job(void* thr_arg) {
     }
 }
 
-static void* writer_job(void* thr_arg) {
-    thread_arg_t* arg = thr_arg;
-    pthread_mutex_t* read_lock = arg->read_lock;
-    pthread_mutex_t* fore_lock = arg->fore_lock;
-    pthread_mutex_t* write_lock = arg->write_lock;
+static void *writer_job(void *thr_arg) {
+    thread_arg_t *arg = thr_arg;
+    pthread_mutex_t *read_lock = arg->read_lock;
+    pthread_mutex_t *fore_lock = arg->fore_lock;
+    pthread_mutex_t *write_lock = arg->write_lock;
     write_done = 0;
 
     while (!write_done) {
@@ -110,10 +111,10 @@ static void* writer_job(void* thr_arg) {
         while (write_tasks_ready == 0) {
             pthread_cond_wait(&write_cv, write_lock);
         }
-        task_t* task = lcl_queue_pop(&write_queue);
+        task_t *task = lcl_queue_pop(&write_queue);
         write_tasks_ready--;
         pthread_mutex_unlock(write_lock);
-        
+
         pthread_mutex_lock(fore_lock);
         pthread_mutex_lock(write_lock);
         if (write_tasks_ready <= 0 && fore_done) {
@@ -122,18 +123,18 @@ static void* writer_job(void* thr_arg) {
         pthread_mutex_unlock(write_lock);
         pthread_mutex_unlock(fore_lock);
 
-        bmp_img* targ = task->targ;
-        char* targ_path = task->targ_path;
+        bmp_img *targ = task->targ;
+        char *targ_path = task->targ_path;
         int ret = bmp_img_write(targ, targ_path);
         if (ret) {
             printf("could not write img %s to src: error %d\n", targ_path, ret);
         }
-
     }
 }
 
-int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_conv_mode* modes,
-                    lcl_filter_t** filters, int img_num, thread_jobs_t jobs) {
+int lcl_conv_array(char **src_paths, char **targ_paths,
+                   enum lcl_conv_mode *modes, lcl_filter_t **filters,
+                   int img_num, thread_jobs_t jobs) {
     if (img_num < 0 || img_num > MAX_IMG_NUM) {
         printf("img_num should be in range [0; %d]\n", MAX_IMG_NUM);
         return LCL_INVALID_ARGUMENT;
@@ -233,19 +234,18 @@ int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_conv_mode* mode
         pthread_create(&writers[i], NULL, writer_job, &write_args[i]);
     }
 
-
     for (int i = 0; i < readers_num; i++) {
-        void* ret;
+        void *ret;
         pthread_join(readers[i], &ret);
     }
 
     for (int i = 0; i < foremen_num; i++) {
-        void* ret;
+        void *ret;
         pthread_join(foremen[i], &ret);
     }
 
     for (int i = 0; i < writers_num; i++) {
-        void* ret;
+        void *ret;
         pthread_join(writers[i], &ret);
     }
 

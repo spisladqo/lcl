@@ -1,7 +1,8 @@
 #include "common.h"
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #define FACT_DF 1.0
 #define BIAS_DF 0.0
@@ -15,7 +16,7 @@ double _id_filter_data_df[3][3] = {
     {0, 0, 0},
 };
 
-double* id_filter_data_df[3] = {
+double *id_filter_data_df[3] = {
     _id_filter_data_df[0],
     _id_filter_data_df[1],
     _id_filter_data_df[2],
@@ -27,12 +28,12 @@ lcl_filter_t id_filter;
  * Blur filters: blur (3x3), Blur (5x5), BLUR (7x7)
  */
 double _blur_filter_data_df[3][3] = {
-    {0,   0.2, 0  },
+    {0, 0.2, 0},
     {0.2, 0.2, 0.2},
-    {0,   0.2, 0  },
+    {0, 0.2, 0},
 };
 
-double* blur_filter_data_df[3] = {
+double *blur_filter_data_df[3] = {
     _blur_filter_data_df[0],
     _blur_filter_data_df[1],
     _blur_filter_data_df[2],
@@ -41,40 +42,33 @@ double* blur_filter_data_df[3] = {
 lcl_filter_t blur_filter;
 
 double _Blur_filter_data_df[5][5] = {
-    {0,     0,     0.077, 0,     0    },
-    {0,     0.077, 0.077, 0.077, 0    },
+    {0, 0, 0.077, 0, 0},
+    {0, 0.077, 0.077, 0.077, 0},
     {0.077, 0.077, 0.077, 0.077, 0.077},
-    {0,     0.077, 0.077, 0.077, 0    },
-    {0,     0,     0.077, 0,     0    },
+    {0, 0.077, 0.077, 0.077, 0},
+    {0, 0, 0.077, 0, 0},
 };
 
-double* Blur_filter_data_df[5] = {
-    _Blur_filter_data_df[0],
-    _Blur_filter_data_df[1],
-    _Blur_filter_data_df[2],
-    _Blur_filter_data_df[3],
-    _Blur_filter_data_df[4],
+double *Blur_filter_data_df[5] = {
+    _Blur_filter_data_df[0], _Blur_filter_data_df[1], _Blur_filter_data_df[2],
+    _Blur_filter_data_df[3], _Blur_filter_data_df[4],
 };
 
 lcl_filter_t Blur_filter;
 
 double _BLUR_filter_data_df[7][7] = {
-    {0,    0,    0,    0.04, 0,    0,    0   },
-    {0,    0,    0.04, 0.04, 0.04, 0,    0   },
-    {0,    0.04, 0.04, 0.04, 0.04, 0.04, 0   },
+    {0, 0, 0, 0.04, 0, 0, 0},
+    {0, 0, 0.04, 0.04, 0.04, 0, 0},
+    {0, 0.04, 0.04, 0.04, 0.04, 0.04, 0},
     {0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04},
-    {0,    0.04, 0.04, 0.04, 0.04, 0.04, 0   },
-    {0,    0,    0.04, 0.04, 0.04, 0,    0   },
-    {0,    0,    0,    0.04, 0,    0,    0   },
+    {0, 0.04, 0.04, 0.04, 0.04, 0.04, 0},
+    {0, 0, 0.04, 0.04, 0.04, 0, 0},
+    {0, 0, 0, 0.04, 0, 0, 0},
 };
 
-double* BLUR_filter_data_df[7] = {
-    _BLUR_filter_data_df[0],
-    _BLUR_filter_data_df[1],
-    _BLUR_filter_data_df[2],
-    _BLUR_filter_data_df[3],
-    _BLUR_filter_data_df[4],
-    _BLUR_filter_data_df[5],
+double *BLUR_filter_data_df[7] = {
+    _BLUR_filter_data_df[0], _BLUR_filter_data_df[1], _BLUR_filter_data_df[2],
+    _BLUR_filter_data_df[3], _BLUR_filter_data_df[4], _BLUR_filter_data_df[5],
     _BLUR_filter_data_df[6],
 };
 
@@ -84,12 +78,12 @@ lcl_filter_t BLUR_filter;
  * Edge detection filter
  */
 double _edge_filter_data_df[3][3] = {
-    {-1, -1, -1 },
-    {-1,  8, -1 },
-    {-1, -1, -1 },
+    {-1, -1, -1},
+    {-1, 8, -1},
+    {-1, -1, -1},
 };
 
-double* edge_filter_data_df[3] = {
+double *edge_filter_data_df[3] = {
     _edge_filter_data_df[0],
     _edge_filter_data_df[1],
     _edge_filter_data_df[2],
@@ -101,12 +95,12 @@ lcl_filter_t edge_filter;
  * Sharpen filter
  */
 double _sharp_filter_data_df[3][3] = {
-    {  0, -1,  0 },
-    { -1,  5, -1 },
-    {  0, -1,  0 },
+    {0, -1, 0},
+    {-1, 5, -1},
+    {0, -1, 0},
 };
 
-double* sharp_filter_data_df[3] = {
+double *sharp_filter_data_df[3] = {
     _sharp_filter_data_df[0],
     _sharp_filter_data_df[1],
     _sharp_filter_data_df[2],
@@ -118,12 +112,12 @@ lcl_filter_t sharp_filter;
  * Negative filter
  */
 double _negative_filter_data_df[3][3] = {
-    { 1,  0,  0 },
-    { 0,  1,  0 },
-    { 0,  0,  1 },
+    {1, 0, 0},
+    {0, 1, 0},
+    {0, 0, 1},
 };
 
-double* negative_filter_data_df[3] = {
+double *negative_filter_data_df[3] = {
     _negative_filter_data_df[0],
     _negative_filter_data_df[1],
     _negative_filter_data_df[2],
@@ -135,12 +129,12 @@ lcl_filter_t negative_filter;
  * Emboss filter
  */
 double _emboss_filter_data_df[3][3] = {
-    { -1, -1,  0 },
-    { -1,  0,  1 },
-    {  0,  1,  1 },
+    {-1, -1, 0},
+    {-1, 0, 1},
+    {0, 1, 1},
 };
 
-double* emboss_filter_data_df[3] = {
+double *emboss_filter_data_df[3] = {
     _emboss_filter_data_df[0],
     _emboss_filter_data_df[1],
     _emboss_filter_data_df[2],
@@ -148,10 +142,9 @@ double* emboss_filter_data_df[3] = {
 
 lcl_filter_t emboss_filter;
 
-
-static int init_filter(lcl_filter_t* filter, double** data_arr,
-    double factor, double bias, int width, int height) {
-    double** data = malloc(sizeof(double*) * width);
+static int init_filter(lcl_filter_t *filter, double **data_arr, double factor,
+                       double bias, int width, int height) {
+    double **data = malloc(sizeof(double *) * width);
     if (!data) {
         return LCL_NOT_ENOUGH_MEMORY;
     }
@@ -160,9 +153,9 @@ static int init_filter(lcl_filter_t* filter, double** data_arr,
     }
 
     for (int i = 0; i < width; i++) {
-        double* col = malloc(sizeof(double) * height);
+        double *col = malloc(sizeof(double) * height);
         if (!col) {
-            for (int j = 0; j < i;j++) {
+            for (int j = 0; j < i; j++) {
                 free(data[j]);
             }
             free(data);
@@ -182,8 +175,8 @@ static int init_filter(lcl_filter_t* filter, double** data_arr,
     return LCL_OK;
 }
 
-static int init_filter_df(lcl_filter_t* filter,
-    double** data_arr, int width, int height) {
+static int init_filter_df(lcl_filter_t *filter, double **data_arr, int width,
+                          int height) {
     return init_filter(filter, data_arr, FACT_DF, BIAS_DF, width, height);
 }
 
@@ -198,7 +191,7 @@ int lcl_init_filters(void) {
     init_filter_df(&emboss_filter, emboss_filter_data_df, 3, 3);
 }
 
-static void free_filter(lcl_filter_t* filter) {
+static void free_filter(lcl_filter_t *filter) {
     if (!filter) {
         return;
     }

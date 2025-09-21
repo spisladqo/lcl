@@ -1,8 +1,10 @@
-#include "../libbmp/libbmp.h"
-#include "common.h"
 #include <stdlib.h>
 
-int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ) {
+#include "../libbmp/libbmp.h"
+#include "common.h"
+
+int lcl_app_filter_seq(const lcl_filter_t *filter, const bmp_img *src,
+                       bmp_img *targ) {
     if (!filter || !src || !targ) {
         return LCL_INVALID_ARGUMENT;
     }
@@ -28,14 +30,20 @@ int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* 
                     int img_x = (x - filter_w / 2 + filter_x + w) % w;
                     int img_y = (y - filter_h / 2 + filter_y + h) % h;
 
-                    red += src->img_pixels[img_y][img_x].red * filter->data[filter_y][filter_x];
-                    green += src->img_pixels[img_y][img_x].green * filter->data[filter_y][filter_x];
-                    blue += src->img_pixels[img_y][img_x].blue * filter->data[filter_y][filter_x];
+                    red += src->img_pixels[img_y][img_x].red *
+                           filter->data[filter_y][filter_x];
+                    green += src->img_pixels[img_y][img_x].green *
+                             filter->data[filter_y][filter_x];
+                    blue += src->img_pixels[img_y][img_x].blue *
+                            filter->data[filter_y][filter_x];
                 }
             }
-            unsigned char new_red = min(absl(filter->factor * red + filter->bias), 255);
-            unsigned char new_green = min(absl(filter->factor * green + filter->bias), 255);
-            unsigned char new_blue = min(absl(filter->factor * blue + filter->bias), 255);
+            unsigned char new_red =
+                min(absl(filter->factor * red + filter->bias), 255);
+            unsigned char new_green =
+                min(absl(filter->factor * green + filter->bias), 255);
+            unsigned char new_blue =
+                min(absl(filter->factor * blue + filter->bias), 255);
 
             targ->img_pixels[y][x].red = new_red;
             targ->img_pixels[y][x].green = new_green;

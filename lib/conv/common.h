@@ -1,4 +1,5 @@
 #include <pthread.h>
+
 #include "../libbmp/libbmp.h"
 
 #ifndef LCL_COMMON_H
@@ -17,8 +18,7 @@
  * Codes between -1 and -4 are reserved for libbmp library.
  * Lcl error codes start from -5.
  */
-enum lcl_return_code
-{
+enum lcl_return_code {
     LCL_OK = 0,
     LCL_INVALID_ARGUMENT = -5,
     LCL_SRC_TARG_DIFF_SIZES = -6,
@@ -37,9 +37,8 @@ enum lcl_return_code
  * `width` - number of elements in x-dimension.
  * `height` - number of elements in y-dimension .
  */
-typedef struct
-{
-    double** data;
+typedef struct {
+    double **data;
     double factor;
     double bias;
     unsigned int width;
@@ -50,7 +49,7 @@ typedef struct
  * A structure that specifies the range of pixels of source image
  * for a single thread to work on. Is used only when
  * `enum lcl_conv_mode mode` == `pile`.
- * 
+ *
  * [`start_w`, `end_w`) - pixels in x dimension.
  * [`start_h`, `end_h`) - pixels in y dimension.
  */
@@ -62,7 +61,7 @@ typedef struct {
 } lcl_pile_t;
 
 /** A number that specifies how to divide work between threads.
- * 
+ *
  * `pixel` - every thread with `thread_id` = `i` works on every `i`'th pixel,
  * from left to right, up to bottom.
  * `row` - every thread with `thread_id` = `i` works on every `i`'th row,
@@ -87,7 +86,7 @@ enum lcl_thread_kind {
 
 /**
  * A structure specifying number of threads of each kind to execute.
- * 
+ *
  * `readers_num` - number of concurrent readers, 1 reader per image.
  * `foremen_num` - number of concurrently convoluted images.
  * `workers_num` - number of threads convoluting one image.
@@ -100,11 +99,10 @@ typedef struct thread_jobs {
     int writers_num;
 } thread_jobs_t;
 
-
 /**
  * A structure that specifies information needed for a thread
  * to perform an operation on an image.
- * 
+ *
  * `pile` - specifies a rectangle for a thread to work on. Is used only when
  * `mode` == `pile`.
  * `filter` - a pointer that specifies filter to be applied.
@@ -121,9 +119,9 @@ typedef struct thread_jobs {
  */
 struct lcl_arg {
     lcl_pile_t pile;
-    const lcl_filter_t* filter;
-    const bmp_img* src;
-    bmp_img* targ;
+    const lcl_filter_t *filter;
+    const bmp_img *src;
+    bmp_img *targ;
     enum lcl_conv_mode mode;
     enum lcl_thread_kind thread_kind;
     unsigned int thread_id;
@@ -131,20 +129,20 @@ struct lcl_arg {
 };
 
 struct task {
-    bmp_img* src;
-    bmp_img* targ;
-    char* src_path;
-    char* targ_path;
-    lcl_filter_t* filter;
+    bmp_img *src;
+    bmp_img *targ;
+    char *src_path;
+    char *targ_path;
+    lcl_filter_t *filter;
     enum lcl_conv_mode conv_mode;
 };
 
 typedef struct task task_t;
 
 struct thread_arg {
-    pthread_mutex_t* read_lock;
-    pthread_mutex_t* fore_lock;
-    pthread_mutex_t* write_lock;
+    pthread_mutex_t *read_lock;
+    pthread_mutex_t *fore_lock;
+    pthread_mutex_t *write_lock;
     int workers_num;
 };
 typedef struct thread_arg thread_arg_t;
@@ -189,14 +187,13 @@ extern lcl_filter_t negative_filter;
  */
 extern lcl_filter_t emboss_filter;
 
-
 /**
  * Allocate memory for filters and fill them with values.
  * Should be used before working with the filters, the filters should then be
  * freed with `lcl_free_filters`.
  *
  * Returns lcl_return_code.
-*/
+ */
 int lcl_init_filters(void);
 
 /**
@@ -207,7 +204,7 @@ void lcl_free_filters(void);
 
 /**
  * Apply filter to image, sequentially.
- * 
+ *
  * `filter` - a pointer that specifies filter to be applied.
  * `src` - a pointer that specifies source bmp image.
  * Should already be allocated with `bmp_img_read`.
@@ -217,11 +214,12 @@ void lcl_free_filters(void);
  * Returns 0 and fills up `targ` on success.
  * Returns `lcl_return_code` on error.
  */
-int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+int lcl_app_filter_seq(const lcl_filter_t *filter, const bmp_img *src,
+                       bmp_img *targ);
 
 /**
  * Apply filter to an image, concurrently.
- * 
+ *
  * `mode` - a number that specifies how to divide work between threads.
  * `nthreads` - number of threads to execute.
  * `filter` - a pointer that specifies filter to be applied.
@@ -234,12 +232,13 @@ int lcl_app_filter_seq(const lcl_filter_t* filter, const bmp_img* src, bmp_img* 
  * Returns `lcl_return_code` on error.
  */
 int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
-    const lcl_filter_t* filter, const bmp_img* src, bmp_img* targ);
+                   const lcl_filter_t *filter, const bmp_img *src,
+                   bmp_img *targ);
 
 /**
  * Read images from the filesystem, convolute them and
  * write back to the filesystem.
- * 
+ *
  * `src_paths` - a pointer to array of paths in filesystem with source images.
  * `targ_paths` - a pointer to array of paths in filesystem for output images.
  * `modes` - a pointer to array of convolution modes for every according image.
@@ -250,7 +249,8 @@ int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
  * Returns 0 and saves images on `targ_paths` on success.
  * Returns `lcl_return_code` on error.
  */
-int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_conv_mode* modes,
-                    lcl_filter_t** filters, int img_num, thread_jobs_t jobs);
+int lcl_conv_array(char **src_paths, char **targ_paths,
+                   enum lcl_conv_mode *modes, lcl_filter_t **filters,
+                   int img_num, thread_jobs_t jobs);
 
-#endif // LCL_COMMON_H
+#endif  // LCL_COMMON_H

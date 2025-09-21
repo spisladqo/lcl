@@ -1,32 +1,28 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
 #include <libgen.h>
 #include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include <unistd.h>
+
 #include "../../lib/conv/common.h"
 
 #define N 20
 #define NSEC_IN_SEC 1000000000.0
 
-char* get_test_image_path(const char* filename) {
+char *get_test_image_path(const char *filename) {
     static char path[PATH_MAX];
     char cwd[PATH_MAX];
-    
+
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
         return NULL;
     }
 
-    const char* paths[] = {
-        "../../images/input/%s",
-        "../images/input/%s", 
-        "images/input/%s",
-        "../../../images/input/%s",
-        "%s"
-    };
-    
-    for (int i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
+    const char *paths[] = {"../../images/input/%s", "../images/input/%s",
+                           "images/input/%s", "../../../images/input/%s", "%s"};
+
+    for (int i = 0; i < sizeof(paths) / sizeof(paths[0]); i++) {
         snprintf(path, sizeof(path), paths[i], filename);
 
         if (access(path, F_OK) == 0) {
@@ -37,7 +33,7 @@ char* get_test_image_path(const char* filename) {
     return NULL;
 }
 
-char* get_test_image_out_path(const char* filename) {
+char *get_test_image_out_path(const char *filename) {
     static char path[PATH_MAX];
     char cwd[PATH_MAX];
 
@@ -45,16 +41,11 @@ char* get_test_image_out_path(const char* filename) {
         return NULL;
     }
 
-    const char* paths[] = {
-        "../../images/output/%s",
-        "../images/output/%s", 
-        "images/output/%s",
-        "../../../images/output/%s",
-        "%s"
-    };
-    
+    const char *paths[] = {"../../images/output/%s", "../images/output/%s",
+                           "images/output/%s", "../../../images/output/%s",
+                           "%s"};
 
-    for (int i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
+    for (int i = 0; i < sizeof(paths) / sizeof(paths[0]); i++) {
         snprintf(path, sizeof(path), paths[i], filename);
 
         if (access(path, F_OK) == 0) {
@@ -66,19 +57,19 @@ char* get_test_image_out_path(const char* filename) {
 // char* get_output_image_path(const char* filename) {
 //     static char path[PATH_MAX];
 //     char cwd[PATH_MAX];
-    
+
 //     if (getcwd(cwd, sizeof(cwd)) == NULL) {
 //         return NULL;
 //     }
 
 //     const char* paths[] = {
 //         "../../images/output/%s",
-//         "../images/output/%s", 
+//         "../images/output/%s",
 //         "images/output/%s",
 //         "../../../images/input/%s",
 //         "%s"
 //     };
-    
+
 //     for (int i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
 //         snprintf(path, sizeof(path), paths[i], filename);
 
@@ -90,29 +81,28 @@ char* get_test_image_out_path(const char* filename) {
 //     return NULL;
 // }
 
-
-#define GET_MODE_NAME(mode, name)   \
-    switch (mode) {                 \
-    case pilewise:                  \
-        name = "pilewise";          \
-        break;                      \
-    case pixelwise:                 \
-        name = "pixelwise";         \
-        break;                      \
-    case rowwise:                   \
-        name = "rowwise";           \
-        break;                      \
-    case columnwise:                \
-        name = "columnwise";        \
-        break;                      \
-    default:                        \
-        name = "unknown";           \
+#define GET_MODE_NAME(mode, name) \
+    switch (mode) {               \
+        case pilewise:            \
+            name = "pilewise";    \
+            break;                \
+        case pixelwise:           \
+            name = "pixelwise";   \
+            break;                \
+        case rowwise:             \
+            name = "rowwise";     \
+            break;                \
+        case columnwise:          \
+            name = "columnwise";  \
+            break;                \
+        default:                  \
+            name = "unknown";     \
     }
 
 typedef struct {
-    const char* filter_name;
-    lcl_filter_t* filter;
-    const char* prefix;
+    const char *filter_name;
+    lcl_filter_t *filter;
+    const char *prefix;
 } test_config_t;
 
 static const test_config_t test_configs[] = {
@@ -124,17 +114,15 @@ static const test_config_t test_configs[] = {
 
 #define TEST_CONFIGS_COUNT (sizeof(test_configs) / sizeof(test_configs[0]))
 
-static const char* image_files[] = {
-    "Mona_Lisa.bmp",
-    // "The_Ninth_Wave.bmp", 
-    // "Almond_van_Gogh.bmp",
-    "Impression_Sunrise.bmp"
-};
+static const char *image_files[] = {"Mona_Lisa.bmp",
+                                    // "The_Ninth_Wave.bmp",
+                                    // "Almond_van_Gogh.bmp",
+                                    "Impression_Sunrise.bmp"};
 
 #define IMAGE_FILES_COUNT (sizeof(image_files) / sizeof(image_files[0]))
 
-static int test_app_filter_seq(lcl_filter_t* filter,
-                              const char* fname_src, const char* fname_targ, double* elapsed_s) {
+static int test_app_filter_seq(lcl_filter_t *filter, const char *fname_src,
+                               const char *fname_targ, double *elapsed_s) {
     struct timespec start, end;
     double sec, nsec;
     bmp_img src, targ;
@@ -175,15 +163,15 @@ static int test_app_filter_seq(lcl_filter_t* filter,
     sec = (end.tv_sec - start.tv_sec);
     *elapsed_s = sec + nsec / NSEC_IN_SEC;
 
-
     bmp_img_free(&src);
     bmp_img_free(&targ);
 
     return LCL_OK;
 }
 
-static int test_app_filter(enum lcl_conv_mode mode, unsigned int nthreads, lcl_filter_t* filter,
-                          const char* fname_src, const char* fname_targ, double* elapsed_s) {
+static int test_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
+                           lcl_filter_t *filter, const char *fname_src,
+                           const char *fname_targ, double *elapsed_s) {
     struct timespec start, end;
     double sec, nsec;
     bmp_img src, targ;
@@ -224,15 +212,15 @@ static int test_app_filter(enum lcl_conv_mode mode, unsigned int nthreads, lcl_f
     sec = (end.tv_sec - start.tv_sec);
     *elapsed_s = sec + nsec / NSEC_IN_SEC;
 
-
     bmp_img_free(&src);
     bmp_img_free(&targ);
 
     return LCL_OK;
 }
 
-static int test_conv_array(char** src_paths, char** targ_paths, enum lcl_conv_mode* modes,
-                          lcl_filter_t** filters, int img_num, thread_jobs_t jobs, double* elapsed_s) {
+static int test_conv_array(char **src_paths, char **targ_paths,
+                           enum lcl_conv_mode *modes, lcl_filter_t **filters,
+                           int img_num, thread_jobs_t jobs, double *elapsed_s) {
     struct timespec start, end;
     double sec, nsec;
 
@@ -241,7 +229,8 @@ static int test_conv_array(char** src_paths, char** targ_paths, enum lcl_conv_mo
         return LCL_INVALID_ARGUMENT;
     }
 
-    int ret = lcl_conv_array(src_paths, targ_paths, modes, filters, img_num, jobs);
+    int ret =
+        lcl_conv_array(src_paths, targ_paths, modes, filters, img_num, jobs);
 
     if (clock_gettime(CLOCK_REALTIME, &end) == -1) {
         printf("clock gettime error");
@@ -269,7 +258,7 @@ int main(void) {
 
     int mode_num = 4;
     enum lcl_conv_mode modes[] = {pilewise, pixelwise, rowwise, columnwise};
-    char* mode_names[] = {"pilewise", "pixelwise", "rowwise", "columnwise"};
+    char *mode_names[] = {"pilewise", "pixelwise", "rowwise", "columnwise"};
 
     printf("Big image\n");
     printf("Sequential\n");
@@ -278,7 +267,8 @@ int main(void) {
     for (int k = 0; k < img_num; k++) {
         for (int i = 0; i < N; i++) {
             // printf("iteration %d, ", i);
-            test_app_filter_seq(&blur_filter, PATH_IN BIG_IMG, PATH_OUT BIG_IMG, &elapsed);
+            test_app_filter_seq(&blur_filter, PATH_IN BIG_IMG, PATH_OUT BIG_IMG,
+                                &elapsed);
             printf("%0.4f ", elapsed);
             avg += elapsed;
         }
@@ -295,7 +285,8 @@ int main(void) {
         for (int k = 0; k < img_num; k++) {
             for (int i = 0; i < N; i++) {
                 // printf("iteration %d, ", i);
-                test_app_filter(modes[i], thread_num, &blur_filter, PATH_IN BIG_IMG, PATH_OUT BIG_IMG, &elapsed);
+                test_app_filter(modes[i], thread_num, &blur_filter,
+                                PATH_IN BIG_IMG, PATH_OUT BIG_IMG, &elapsed);
                 printf("%0.4f ", elapsed);
                 avg += elapsed;
             }
@@ -303,29 +294,32 @@ int main(void) {
         avg /= N;
         printf("\navg: %.4f s\n", avg);
     }
-    
-    printf("\n\nParallel + Queue\n");
-    thread_jobs_t jobs = {
-        .readers_num = img_num,
-        .foremen_num = img_num,
-        .writers_num = img_num,
-        .workers_num = thread_num
-    };
 
-    char* src[] = {PATH_IN BIG_IMG, PATH_IN "Almond_van_Gogh.bmp",
-                    PATH_IN "Impression_Sunrise.bmp", PATH_IN "Sunflowers_van_Gogh.bmp"};
-    char* targ[] = {PATH_OUT BIG_IMG, PATH_OUT "Almond_van_Gogh.bmp",
-                    PATH_OUT "Impression_Sunrise.bmp", PATH_OUT "Sunflowers_van_Gogh.bmp"};
-    lcl_filter_t* filters[] = {&blur_filter, &blur_filter, &blur_filter, &blur_filter};
+    printf("\n\nParallel + Queue\n");
+    thread_jobs_t jobs = {.readers_num = img_num,
+                          .foremen_num = img_num,
+                          .writers_num = img_num,
+                          .workers_num = thread_num};
+
+    char *src[] = {PATH_IN BIG_IMG, PATH_IN "Almond_van_Gogh.bmp",
+                   PATH_IN "Impression_Sunrise.bmp",
+                   PATH_IN "Sunflowers_van_Gogh.bmp"};
+    char *targ[] = {PATH_OUT BIG_IMG, PATH_OUT "Almond_van_Gogh.bmp",
+                    PATH_OUT "Impression_Sunrise.bmp",
+                    PATH_OUT "Sunflowers_van_Gogh.bmp"};
+    lcl_filter_t *filters[] = {&blur_filter, &blur_filter, &blur_filter,
+                               &blur_filter};
 
     for (int j = 0; j < mode_num; j++) {
         printf("Mode: %s\n", mode_names[j]);
-        enum lcl_conv_mode modes_arr[] = {modes[j], modes[j], modes[j], modes[j]};
+        enum lcl_conv_mode modes_arr[] = {modes[j], modes[j], modes[j],
+                                          modes[j]};
 
         avg = 0.0;
         for (int i = 0; i < N; i++) {
             // printf("iteration %d, ", i);
-            test_conv_array(src, targ, modes_arr, filters, img_num, jobs, &elapsed);
+            test_conv_array(src, targ, modes_arr, filters, img_num, jobs,
+                            &elapsed);
             printf("%0.4f ", elapsed);
             avg += elapsed;
         }
@@ -334,6 +328,6 @@ int main(void) {
     }
 
     lcl_free_filters();
-    
+
     return 0;
 }

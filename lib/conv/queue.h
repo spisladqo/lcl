@@ -2,16 +2,16 @@
 #define LCL_QUEUE_H
 
 typedef struct lcl_queue_node {
-    struct lcl_queue_node* next;
-    void* data;
+    struct lcl_queue_node *next;
+    void *data;
 } lcl_queue_node_t;
 
 typedef struct lcl_queue {
-    lcl_queue_node_t* head;
-    lcl_queue_node_t* tail;
+    lcl_queue_node_t *head;
+    lcl_queue_node_t *tail;
 } lcl_queue_t;
 
-int lcl_queue_push(lcl_queue_t* queue, void* data);
-void* lcl_queue_pop(lcl_queue_t* queue);
+int lcl_queue_push(lcl_queue_t *queue, void *data);
+void *lcl_queue_pop(lcl_queue_t *queue);
 
 #endif

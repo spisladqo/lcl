@@ -61,3 +61,6 @@ liblcl
 
 # image convolution output
 out*
+
+# valgrind
+vgcore*
