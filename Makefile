@@ -32,10 +32,10 @@ test:
 	./$(PROJECT)_tests
 
 fmt:
-	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4}" -i $(LIB_CONV_DIR)/* $(PARSE_DIR)/* $(UNIT_DIR)/* $(BENCH_DIR)/*
+	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, SortIncludes: false}" -i $(LIB_CONV_DIR)/* $(PARSE_DIR)/* $(UNIT_DIR)/* $(BENCH_DIR)/*
 
 fmt-check:
-	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4}" --dry-run --Werror  $(LIB_CONV_DIR)/* $(PARSE_DIR)/* $(UNIT_DIR)/* $(BENCH_DIR)/*
+	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, SortIncludes: false}" --dry-run --Werror  $(LIB_CONV_DIR)/* $(PARSE_DIR)/* $(UNIT_DIR)/* $(BENCH_DIR)/*
 
 clean-img:
 	rm -rf $(IMG_SERIAL_OUT_DIR)/*
