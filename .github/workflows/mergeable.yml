@@ -1,0 +1,31 @@
+name: Lcl build
+
+on:
+  push:
+    workflow_dispatch:
+    branches:
+      '**'
+    pull_request: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: make build
+      - name: Install cmocka
+        run: sudo apt-get update && sudo apt-get install && sudo apt-get install -y libcmocka-dev
+      - name: Run tests
+        run: make test
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: make fmt-check
