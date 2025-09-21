@@ -16,6 +16,8 @@ UNIT_DIR=$(TESTS)/unit
 
 CC=gcc
 
+build: all
+
 all:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(PARSE_DIR)/*.c -o lcl $(CFLAGS)
 
