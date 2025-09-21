@@ -246,7 +246,7 @@ static int test_conv_array(char **src_paths, char **targ_paths,
 
 #define PATH_IN "/home/spisladqo/projects/c/parallels/lcl/images/input/"
 #define PATH_OUT "/home/spisladqo/projects/c/parallels/lcl/images/output/"
-#define SMALL_IMG "Mona_Lisa.bmp"
+#define SMALL_IMG "Almond_van_Gogh.bmp"
 #define BIG_IMG "The_Ninth_Wave.bmp"
 
 int main(void) {
@@ -256,18 +256,18 @@ int main(void) {
     int thread_num = 4;
     int img_num = 4;
 
-    int mode_num = 4;
+    int mode_num = 3;
     enum lcl_conv_mode modes[] = {pilewise, pixelwise, rowwise, columnwise};
     char *mode_names[] = {"pilewise", "pixelwise", "rowwise", "columnwise"};
-
-    printf("Big image\n");
-    printf("Sequential\n");
-
     double avg = 0.0;
+
+    printf("small image\n");
+
+    printf("Sequential\n");
     for (int k = 0; k < img_num; k++) {
         for (int i = 0; i < N; i++) {
             // printf("iteration %d, ", i);
-            test_app_filter_seq(&blur_filter, PATH_IN BIG_IMG, PATH_OUT BIG_IMG,
+            test_app_filter_seq(&blur_filter, PATH_IN SMALL_IMG, PATH_OUT SMALL_IMG,
                                 &elapsed);
             printf("%0.4f ", elapsed);
             avg += elapsed;
@@ -286,7 +286,7 @@ int main(void) {
             for (int i = 0; i < N; i++) {
                 // printf("iteration %d, ", i);
                 test_app_filter(modes[i], thread_num, &blur_filter,
-                                PATH_IN BIG_IMG, PATH_OUT BIG_IMG, &elapsed);
+                                PATH_IN SMALL_IMG, PATH_OUT SMALL_IMG, &elapsed);
                 printf("%0.4f ", elapsed);
                 avg += elapsed;
             }
@@ -301,10 +301,10 @@ int main(void) {
                           .writers_num = img_num,
                           .workers_num = thread_num};
 
-    char *src[] = {PATH_IN BIG_IMG, PATH_IN "Almond_van_Gogh.bmp",
+    char *src[] = {PATH_IN SMALL_IMG, PATH_IN "Almond_van_Gogh.bmp",
                    PATH_IN "Impression_Sunrise.bmp",
                    PATH_IN "Sunflowers_van_Gogh.bmp"};
-    char *targ[] = {PATH_OUT BIG_IMG, PATH_OUT "Almond_van_Gogh.bmp",
+    char *targ[] = {PATH_OUT SMALL_IMG, PATH_OUT "Almond_van_Gogh.bmp",
                     PATH_OUT "Impression_Sunrise.bmp",
                     PATH_OUT "Sunflowers_van_Gogh.bmp"};
     lcl_filter_t *filters[] = {&blur_filter, &blur_filter, &blur_filter,

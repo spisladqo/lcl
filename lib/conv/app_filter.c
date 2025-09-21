@@ -104,7 +104,7 @@ static void *app_filter(void *varg) {
                 }
             }
             break;
-        case rowwise:
+        case columnwise:
             for (y = 0; y < h; y += total_threads) {
                 for (x = 0; x < w; x++) {
                     convolute_pixel(arg, x, y, w, h);
