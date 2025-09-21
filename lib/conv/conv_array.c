@@ -157,6 +157,19 @@ int lcl_conv_array(char** src_paths, char** targ_paths, enum lcl_conv_mode* mode
     int workers_num = jobs.workers_num;
     int writers_num = jobs.writers_num;
 
+    if (readers_num > img_num) {
+        printf("readers num cannot exceed image num\n");
+        return LCL_INVALID_ARGUMENT;
+    }
+    if (foremen_num > img_num) {
+        printf("foremen num cannot exceed image num\n");
+        return LCL_INVALID_ARGUMENT;
+    }
+    if (writers_num > img_num) {
+        printf("writers num cannot exceed image num\n");
+        return LCL_INVALID_ARGUMENT;
+    }
+
     pthread_t readers[readers_num];
     pthread_t foremen[foremen_num];
     pthread_t writers[writers_num];
