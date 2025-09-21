@@ -1,9 +1,3 @@
-#include <cmocka.h>
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdlib.h>
-
 #include "common.h"
 
 int main(void) {

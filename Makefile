@@ -27,7 +27,7 @@ bench:
 
 test:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* -Wall -Wextra -g $(TESTS)/unit/* -o $(PROJECT)_tests -lcmocka
-# 	./$(PROJECT)_tests
+	./$(PROJECT)_tests
 
 fmt:
 	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4}" -i $(LIB_CONV_DIR)/* $(PARSE_DIR)/* $(UNIT_DIR)/* $(BENCH_DIR)/*
