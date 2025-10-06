@@ -7,6 +7,7 @@
 #include "parse.h"
 
 int main(int argc, char *argv[]) {
+    lcl_init_filters();
     lcl_parse_arg args;
 
     int err = lcl_parse(argc, argv, &args);
@@ -32,8 +33,7 @@ int main(int argc, char *argv[]) {
     if (strcmp(args.mode, "seq") == 0) {
         err = lcl_app_filter_seq(args.filter, &src, &targ);
     } else if (strcmp(args.mode, "par") == 0) {
-        err =
-            lcl_app_filter(args.conv, args.nthreads, args.filter, &src, &targ);
+        err = lcl_app_filter(args.conv, args.nthreads, args.filter, &src, &targ);
     } else {
         printf("error: unknown mode %s\n", args.mode);
         return INVALID_KEY;
@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
 
     bmp_img_free(&src);
     bmp_img_free(&targ);
+    lcl_free_filters();
 
     return err;
 }
