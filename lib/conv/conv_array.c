@@ -148,10 +148,10 @@ int lcl_conv_array(char **src_paths, char **targ_paths,
     bmp_img src[img_num], targ[img_num];
 
     // maybe readers should do this
-    for (int i = 0; i < img_num; i++) {
-        bmp_img_init_df(&src[i], 0, 0);
-        bmp_img_init_df(&targ[i], 0, 0);
-    }
+    // for (int i = 0; i < img_num; i++) {
+    //     bmp_img_init_df(&src[i], 0, 0);
+    //     bmp_img_init_df(&targ[i], 0, 0);
+    // }
 
     int readers_num = jobs.readers_num;
     int foremen_num = jobs.foremen_num;

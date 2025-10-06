@@ -16,9 +16,6 @@ int main(int argc, char *argv[]) {
     }
 
     bmp_img src, targ;
-    bmp_img_init_df(&src, 0, 0);
-    bmp_img_init_df(&targ, 0, 0);
-
     err = bmp_img_read(&src, args.src);
     if (err) {
         printf("could not read img to src: error %d\n", err);

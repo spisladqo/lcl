@@ -1,4 +1,4 @@
-PROJECT=liblcl
+PROJECT=lcl
 
 IMG_OUT_DIR=images/output
 IMG_SERIAL_OUT_DIR=$(IMG_OUT_DIR)/serial
@@ -19,10 +19,10 @@ CC=gcc
 build: all
 
 all:
-	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(PARSE_DIR)/*.c -o lcl $(CFLAGS)
+	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(PARSE_DIR)/*.c -o $(PROJECT) $(CFLAGS)
 
 debug:
-	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* -g -fsanitize=address -o $(PROJECT) $(CFLAGS)
+	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(PARSE_DIR)/*.c -g -fsanitize=address -o $(PROJECT) $(CFLAGS)
 
 bench:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(BENCH_DIR)/*.c -o $(PROJECT)_bench

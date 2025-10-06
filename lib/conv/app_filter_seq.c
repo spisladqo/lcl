@@ -16,8 +16,11 @@ int lcl_app_filter_seq(const lcl_filter_t *filter, const bmp_img *src,
     int w = src->img_header.biWidth;
     int h = src->img_header.biHeight;
 
+    printf("w:%d, h:%d\n", w, h);
+
     int filter_w = filter->width;
     int filter_h = filter->height;
+    printf("filter_w:%d, filter_h:%d\n", filter_w, filter_h);
 
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
@@ -48,6 +51,10 @@ int lcl_app_filter_seq(const lcl_filter_t *filter, const bmp_img *src,
             targ->img_pixels[y][x].red = new_red;
             targ->img_pixels[y][x].green = new_green;
             targ->img_pixels[y][x].blue = new_blue;
+
+            if (x > 1350 && new_red > 250 && new_green > 250 && new_blue > 250) {
+                printf("black on (%d, %d)\n", x, y);
+            }
         }
     }
     return LCL_OK;

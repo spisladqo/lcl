@@ -133,8 +133,8 @@ static int test_app_filter_seq(lcl_filter_t *filter, const char *fname_src,
         return LCL_INVALID_ARGUMENT;
     }
 
-    bmp_img_init_df(&src, 0, 0);
-    bmp_img_init_df(&targ, 0, 0);
+    // bmp_img_init_df(&src, 0, 0);
+    // bmp_img_init_df(&targ, 0, 0);
 
     ret = bmp_img_read(&src, fname_src);
     if (ret) {
@@ -182,8 +182,8 @@ static int test_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
         return LCL_INVALID_ARGUMENT;
     }
 
-    bmp_img_init_df(&src, 0, 0);
-    bmp_img_init_df(&targ, 0, 0);
+    // bmp_img_init_df(&src, 0, 0);
+    // bmp_img_init_df(&targ, 0, 0);
 
     ret = bmp_img_read(&src, fname_src);
     if (ret) {
