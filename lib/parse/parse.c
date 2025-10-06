@@ -49,7 +49,7 @@ int lcl_parse(int argc, char *argv[], lcl_parse_arg *args) {
 
     struct option long_options[] = {{"mode", required_argument, 0, 'm'},
                                     {"src", required_argument, 0, 's'},
-                                    {"targ", required_argument, 0, 't'},
+                                    {"target", required_argument, 0, 't'},
                                     {"filter", required_argument, 0, 'f'},
                                     {"conv", required_argument, 0, 'c'},
                                     {"nthreads", required_argument, 0, 'n'},
