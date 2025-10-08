@@ -4,8 +4,8 @@
 #include "../libbmp/libbmp.h"
 #include "common.h"
 
-static inline void *convolute_pixel(struct lcl_arg *arg, int x, int y, int w,
-                                    int h) {
+static inline void *convolute_pixel(struct lcl_arg *arg, int x, int y, int img_w,
+                                    int img_h) {
     bmp_img *src = arg->src;
     bmp_img *targ = arg->targ;
     lcl_filter_t *filter = arg->filter;
@@ -18,8 +18,8 @@ static inline void *convolute_pixel(struct lcl_arg *arg, int x, int y, int w,
 
     for (int filter_y = 0; filter_y < filter_h; filter_y++) {
         for (int filter_x = 0; filter_x < filter_w; filter_x++) {
-            int img_x = (x - filter_w / 2 + filter_x + w) % w;
-            int img_y = (y - filter_h / 2 + filter_y + h) % h;
+            int img_x = (x - filter_w / 2 + filter_x + img_w) % img_w;
+            int img_y = (y - filter_h / 2 + filter_y + img_h) % img_h;
 
             red += src->img_pixels[img_y][img_x].red *
                    filter->data[filter_y][filter_x];
@@ -74,13 +74,8 @@ static void *app_filter(void *varg) {
     int w, h;
     int x, y;
 
-    if (mode == pilewise) {
-        w = pile.end_w;
-        h = pile.end_h;
-    } else {
-        w = targ->img_header.biWidth;
-        h = targ->img_header.biHeight;
-    }
+    w = targ->img_header.biWidth;
+    h = targ->img_header.biHeight;
 
     if (mode == pixelwise) {
         x = thread_id;
@@ -91,28 +86,29 @@ static void *app_filter(void *varg) {
 
     switch (mode) {
         case pilewise:
-            for (x = pile.start_w; x < w; x++) {
-                for (y = pile.start_h; y < h; y++) {
+            for (x = pile.start_w; x < pile.end_w; x++) {
+                for (y = pile.start_h; y < pile.end_h; y++) {
                     convolute_pixel(arg, x, y, w, h);
                 }
             }
             break;
         case pixelwise:
             for (y = 0; y < h; y++) {
-                for (x = x % w; x < w; x += total_threads) {
+                for (x = thread_id; x < w; x += total_threads) {
                     convolute_pixel(arg, x, y, w, h);
                 }
             }
             break;
         case columnwise:
-            for (y = 0; y < h; y += total_threads) {
-                for (x = 0; x < w; x++) {
+            for (x = thread_id; x < w; x += total_threads) {
+                for (y = 0; y < h; y++) {
                     convolute_pixel(arg, x, y, w, h);
                 }
             }
+        case rowwise:
         default:
-            for (x = 0; x < w; x += total_threads) {
-                for (y = 0; y < h; y++) {
+            for (y = thread_id; y < h; y += total_threads) {
+                for (x = 0; x < w; x++) {
                     convolute_pixel(arg, x, y, w, h);
                 }
             }
@@ -149,11 +145,20 @@ int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
 
     for (int i = 0; i < nthreads; i++) {
         lcl_pile_t pile = {
-            .start_w = i * ((src_end_w + 1) / nthreads),
-            .start_h = 0,
-            .end_w = (i + 1) * ((src_end_w + 1) / nthreads),
-            .end_h = src_end_h,
+            .start_w = 0,
+            .end_w = src_end_w,
+            .start_h = i * ((src_end_h + nthreads) / nthreads),
+            .end_h = (i + 1) * ((src_end_h + nthreads) / nthreads),
         };
+
+        if (pile.end_w > src_end_w) {
+            pile.end_w = src_end_w;
+        }
+
+        if (pile.end_h > src_end_h) {
+            pile.end_h = src_end_h;
+        }
+        printf("%d'th thread works on x from %u to %u, on y from %u to %u\n", i, pile.start_w, pile.end_w, pile.start_h, pile.end_h);
 
         // printf("thread %d works from %d to %d\n", i, pile.start_w,
         // pile.end_w);
