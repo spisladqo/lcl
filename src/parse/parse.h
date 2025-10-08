@@ -1,4 +1,4 @@
-#include "../conv/common.h"
+#include "../lib/conv/common.h"
 #define NOT_ENOUGH_MODES 1
 #define INVALID_KEY 2
 #define INVALID_VAL 3

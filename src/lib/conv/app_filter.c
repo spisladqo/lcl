@@ -4,8 +4,8 @@
 #include "../libbmp/libbmp.h"
 #include "common.h"
 
-static inline void *convolute_pixel(struct lcl_arg *arg, int x, int y, int img_w,
-                                    int img_h) {
+static inline void *convolute_pixel(struct lcl_arg *arg, int x, int y,
+                                    int img_w, int img_h) {
     bmp_img *src = arg->src;
     bmp_img *targ = arg->targ;
     lcl_filter_t *filter = arg->filter;
@@ -158,7 +158,8 @@ int lcl_app_filter(enum lcl_conv_mode mode, unsigned int nthreads,
         if (pile.end_h > src_end_h) {
             pile.end_h = src_end_h;
         }
-        printf("%d'th thread works on x from %u to %u, on y from %u to %u\n", i, pile.start_w, pile.end_w, pile.start_h, pile.end_h);
+        // printf("%d'th thread works on x from %u to %u, on y from %u to %u\n",
+        // i, pile.start_w, pile.end_w, pile.start_h, pile.end_h);
 
         // printf("thread %d works from %d to %d\n", i, pile.start_w,
         // pile.end_w);

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../conv/common.h"
+#include "../lib/conv/common.h"
 #include "parse.h"
 
 int main(int argc, char *argv[]) {
@@ -30,7 +30,8 @@ int main(int argc, char *argv[]) {
     if (strcmp(args.mode, "seq") == 0) {
         err = lcl_app_filter_seq(args.filter, &src, &targ);
     } else if (strcmp(args.mode, "par") == 0) {
-        err = lcl_app_filter(args.conv, args.nthreads, args.filter, &src, &targ);
+        err =
+            lcl_app_filter(args.conv, args.nthreads, args.filter, &src, &targ);
     } else {
         printf("error: unknown mode %s\n", args.mode);
         return INVALID_KEY;

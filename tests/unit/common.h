@@ -6,8 +6,8 @@
 #include <string.h>
 #include <cmocka.h>
 
-#include "../../lib/conv/common.h"
-#include "../../lib/conv/queue.h"
+#include "../../src/lib/conv/common.h"
+#include "../../src/lib/conv/queue.h"
 
 bmp_img *create_test_image(int width, int height, bmp_pixel pixel);
 lcl_filter_t *create_test_filter(int width, int height, double value);

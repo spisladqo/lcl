@@ -6,7 +6,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "../../lib/conv/common.h"
+#include "../../src/lib/conv/common.h"
 
 #define N 20
 #define NSEC_IN_SEC 1000000000.0
