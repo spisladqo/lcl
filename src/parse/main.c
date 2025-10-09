@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
     sec = (end.tv_sec - start.tv_sec);
     double elapsed = sec + nsec / NSEC_IN_SEC;
 
-    printf("elapsed: %f\n", elapsed);
+    printf("elapsed: %fs\n", elapsed);
 
     bmp_img_free(&src);
     bmp_img_free(&targ);
