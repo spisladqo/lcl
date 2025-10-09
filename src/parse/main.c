@@ -29,30 +29,68 @@ int main(int argc, char *argv[]) {
         return err;
     }
 
-    if (strcmp(args.mode, "seq") == 0 || strcmp(args.mode, "par") == 0) {
+    if (strcmp(args.mode, "seq") == 0) {
         if (clock_gettime(CLOCK_REALTIME, &start) == -1) {
+            printf("clock gettime error");
+            return CLOCK_ERROR;
+        }
+
+        err = bmp_img_read(&src, args.src);
+        if (err) {
+            printf("could not read img to src: error %d\n", err);
+            return err;
+        }
+        err = bmp_img_read(&targ, args.src);
+        if (err) {
+            printf("could not read img to targ: error %d\n", err);
+            return err;
+        }
+
+        err = lcl_app_filter_seq(args.filter, &src, &targ);
+
+        err = bmp_img_write(&targ, args.targ);
+        if (err) {
+            printf("could not write img, error %d\n", err);
+        }
+
+
+        if (clock_gettime(CLOCK_REALTIME, &end) == -1) {
             printf("clock gettime error");
             return CLOCK_ERROR;
         }
     }
 
-    err = bmp_img_read(&src, args.src);
-    if (err) {
-        printf("could not read img to src: error %d\n", err);
-        return err;
-    }
-    err = bmp_img_read(&targ, args.src);
-    if (err) {
-        printf("could not read img to targ: error %d\n", err);
-        return err;
+    else if (strcmp(args.mode, "par") == 0) {
+        if (clock_gettime(CLOCK_REALTIME, &start) == -1) {
+            printf("clock gettime error");
+            return CLOCK_ERROR;
+        }
+
+        err = bmp_img_read(&src, args.src);
+        if (err) {
+            printf("could not read img to src: error %d\n", err);
+            return err;
+        }
+        err = bmp_img_read(&targ, args.src);
+        if (err) {
+            printf("could not read img to targ: error %d\n", err);
+            return err;
+        }
+
+        err = lcl_app_filter(args.conv, args.nthreads, args.filter, &src, &targ);
+
+        err = bmp_img_write(&targ, args.targ);
+        if (err) {
+            printf("could not write img, error %d\n", err);
+        }
+
+        if (clock_gettime(CLOCK_REALTIME, &end) == -1) {
+            printf("clock gettime error");
+            return CLOCK_ERROR;
+        }
     }
 
-    if (strcmp(args.mode, "seq") == 0) {
-        err = lcl_app_filter_seq(args.filter, &src, &targ);
-    } else if (strcmp(args.mode, "par") == 0) {
-        err =
-            lcl_app_filter(args.conv, args.nthreads, args.filter, &src, &targ);
-    } else if (strcmp(args.mode, "parq") == 0) {
+    else if (strcmp(args.mode, "parq") == 0) {
         if (clock_gettime(CLOCK_REALTIME, &start) == -1) {
             printf("clock gettime error");
             return CLOCK_ERROR;
@@ -71,23 +109,11 @@ int main(int argc, char *argv[]) {
         return err;
     }
 
-    err = bmp_img_write(&targ, args.targ);
-    if (err) {
-        printf("could not write img, error %d\n", err);
-    }
-
-    if (strcmp(args.mode, "seq") == 0 || strcmp(args.mode, "par") == 0) {
-        if (clock_gettime(CLOCK_REALTIME, &end) == -1) {
-            printf("clock gettime error");
-            return CLOCK_ERROR;
-        }
-    }
-
     nsec = (end.tv_nsec - start.tv_nsec);
     sec = (end.tv_sec - start.tv_sec);
     double elapsed = sec + nsec / NSEC_IN_SEC;
 
-    printf("elapsed: %fs\n", elapsed);
+    printf("%f ", elapsed);
 
     bmp_img_free(&src);
     bmp_img_free(&targ);

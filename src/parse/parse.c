@@ -245,13 +245,11 @@ int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char *src_list[MAX_IM
         args->targ = targ_list[0];
         args->filter = filter_list[0];
         args->conv = conv_mode_list[0];
-    } else if (src_num == 1 && src_num == targ_num && targ_num == filter_num && filter_num == conv_num &&
-        strcmp(args->mode, "seq") == 0) {
-        args->src_list = src_list;
-        args->targ_list = targ_list;
-        args->filter_list = filter_list;
-        args->conv_mode_list = conv_mode_list;
-        args->list_size = src_num;
+    } else if (src_num == 1 && src_num == targ_num && targ_num == filter_num && strcmp(args->mode, "seq") == 0) {
+        args->src = src_list[0];
+        args->targ = targ_list[0];
+        args->filter = filter_list[0];
+        args->conv = conv_mode_list[0];
     } else if (strcmp(args->mode, "parq") == 0) {
         printf("error: parq mode requires equal number of all list parameters\n");
         return INVALID_VAL;
