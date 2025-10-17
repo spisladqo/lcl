@@ -8,6 +8,7 @@
 #include "parse.h"
 
 #define NSEC_IN_SEC 1000000000.0
+#define MS_IN_SEC 1000.0
 
 int main(int argc, char *argv[]) {
     lcl_parse_arg args;
@@ -29,12 +30,12 @@ int main(int argc, char *argv[]) {
         return err;
     }
 
-    if (strcmp(args.mode, "seq") == 0) {
-        if (clock_gettime(CLOCK_REALTIME, &start) == -1) {
-            printf("clock gettime error");
-            return CLOCK_ERROR;
-        }
+    if (clock_gettime(CLOCK_REALTIME, &start) == -1) {
+        printf("clock gettime error");
+        return CLOCK_ERROR;
+    }
 
+    if (strcmp(args.mode, "seq") == 0) {
         err = bmp_img_read(&src, args.src);
         if (err) {
             printf("could not read img to src: error %d\n", err);
@@ -52,20 +53,7 @@ int main(int argc, char *argv[]) {
         if (err) {
             printf("could not write img, error %d\n", err);
         }
-
-
-        if (clock_gettime(CLOCK_REALTIME, &end) == -1) {
-            printf("clock gettime error");
-            return CLOCK_ERROR;
-        }
-    }
-
-    else if (strcmp(args.mode, "par") == 0) {
-        if (clock_gettime(CLOCK_REALTIME, &start) == -1) {
-            printf("clock gettime error");
-            return CLOCK_ERROR;
-        }
-
+    } else if (strcmp(args.mode, "par") == 0) {
         err = bmp_img_read(&src, args.src);
         if (err) {
             printf("could not read img to src: error %d\n", err);
@@ -83,26 +71,16 @@ int main(int argc, char *argv[]) {
         if (err) {
             printf("could not write img, error %d\n", err);
         }
-
-        if (clock_gettime(CLOCK_REALTIME, &end) == -1) {
-            printf("clock gettime error");
-            return CLOCK_ERROR;
-        }
-    }
-
-    else if (strcmp(args.mode, "parq") == 0) {
-        if (clock_gettime(CLOCK_REALTIME, &start) == -1) {
-            printf("clock gettime error");
-            return CLOCK_ERROR;
-        }
+    } else if (strcmp(args.mode, "parq") == 0) {
         err = lcl_conv_array(src_list, targ_list, conv_mode_list, filter_list, args.list_size, args.jobs);
-        if (clock_gettime(CLOCK_REALTIME, &end) == -1) {
-            printf("clock gettime error");
-            return CLOCK_ERROR;
-        }
     } else {
         printf("error: unknown mode %s\n", args.mode);
         return INVALID_KEY;
+    }
+
+    if (clock_gettime(CLOCK_REALTIME, &end) == -1) {
+        printf("clock gettime error");
+        return CLOCK_ERROR;
     }
 
     if (err) {
@@ -112,8 +90,10 @@ int main(int argc, char *argv[]) {
     nsec = (end.tv_nsec - start.tv_nsec);
     sec = (end.tv_sec - start.tv_sec);
     double elapsed = sec + nsec / NSEC_IN_SEC;
+    elapsed *= MS_IN_SEC;
 
-    printf("%f ", elapsed);
+
+    printf("%f", elapsed);
 
     bmp_img_free(&src);
     bmp_img_free(&targ);
