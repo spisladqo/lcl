@@ -6,9 +6,9 @@
 
 static inline void *convolute_pixel(struct lcl_arg *arg, int x, int y,
                                     int img_w, int img_h) {
-    bmp_img *src = arg->src;
+    const bmp_img *src = arg->src;
     bmp_img *targ = arg->targ;
-    lcl_filter_t *filter = arg->filter;
+    const lcl_filter_t *filter = arg->filter;
     int filter_w = filter->width;
     int filter_h = filter->height;
 
@@ -44,9 +44,9 @@ static void *app_filter(void *varg) {
     struct lcl_arg *arg = varg;
 
     lcl_pile_t pile = arg->pile;
-    lcl_filter_t *filter = arg->filter;
+    const lcl_filter_t *filter = arg->filter;
 
-    bmp_img *src = arg->src;
+    const bmp_img *src = arg->src;
     bmp_img *targ = arg->targ;
 
     enum lcl_conv_mode mode = arg->mode;
