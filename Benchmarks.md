@@ -1,86 +1,110 @@
-# Benchmarks
-## System
+# Бенчмарки
 
-OS: Linux Fedora 6.16
+## Система
 
-CPU: Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz
+* OS: Linux Fedora 6.16
 
-RAM: 8 GB
+* CPU: Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz
 
-## Test data
+* 12 ядер
 
-Test data can be found in `images/input`.
+* RAM: 8 GB
 
-### "Small" images:
+## Набор
 
-Mona_Lisa.bmp 960x1431 pixels
+Список изображений, использовавшихся в замерах:
 
-Almond_van_Gogh.bmp 1367x1080 pixels
+- Mona_Lisa.bmp 960x1431 пикселей
 
-Sunflowers_van_Gogh.bmp 960x1211 pixels
-
-Impression_Sunrise.bmp 1392x1080 pixels
-
-### "Big" images:
-
-The_Ninth_Wave.bmp 3215x2160 pixels
-
-## Testing
-
-### Functions to test
-
-First of all, there are three functions to test:
-1. First one is applying a filter to an image sequentually.
-2. Second one uses dedicated thread to read the image, then **n** worker threads apply the filter concurrently, then dedicated thread to write the image.
-3. Third one uses different kinds of threads and queues to process an array of images concurrently.
-
-### Ways to divide work between worker threads
-
-3 ways to divide work between worker threads were chosen:
-* Rowwise: Divides the image by rows.
-* Pixelwise: Divides the work on a per-pixel basis.
-* Pilewise: Divides the image into distinct blocks, or piles.
-
-### Metric
-
-In case of single image convolution, these tests measure average total time required to complete a full cycle: reading the image from memory, applying the filter, and writing the result back to memory.
-
-In case of multiple images, these tests measure average total processing throughput, which is the time between reading the first image from memory and writing the last image to the memory.
-
-## Single image
-
-In this test, workers number n=4.
-
-### Small:
-
-![Alt text](images/bench_res/benchmark_results_1s.png)
-
-### Big: 
-![Alt text](images/bench_res/benchmark_results_1b.png)
+- Monet_Parasol.bmp 6001x7455 пикселей
 
 
-The sequential algorithm is significantly slower than all parallel implementations. However, since only a single image is being processed, the performance differences between the various parallel approaches are negligible.
+## Функции свёртки
 
-## Multiple images
+Реализованы три функции для свёртки изображений:
 
-For this test, 4 images were chosen to be processed in a sequence. For function that uses queues, all of readers, writers and foremen (workers' orchestrators) were set to be 4, to begin proccessing tasks as soon as possible.
+* В первой функции для чтения, применения фильтра к изображению и записи его в память используется **1** поток.
+* Во второй чтение и запись совершает **1** поток, применение фильтра происходит с помощью **n** потоков. Число потоков настраивается пользователем.
+* В третьей используются разные виды потоков и соответствующих им очередей для конкурентного чтения изображений, применения к ним фильтра и их записи. Всего 4 вида потоков, число каждого вида потоков настраивается пользователем.
 
-Workers number is still n=4.
 
-### Small:
+### Краткое описание работы потоков
 
-![Alt text](images/bench_res/benchmark_results_4s.png)
+* Reader - поток, читающий изображение из памяти в RAM. После чтения очередного изображения, кладет его в очередь и приступает к следующему изображению, если возможно.
+* Foreman - поток, оркестрирующий worker'ами. Число foremen - фактически число изображений, к которым одновременно применяются фильтры. После того, как обработка изображения окончена, кладет его в очередь и приступает к следующему изображению, если возможно.
+* Worker - поток, занимающийся применением фильтра к изображению.
+* Writer - поток, записывающий изображение из RAM в память. После записи приступает к следующему изображению, если возможно.
 
-### Big:
 
-![Alt text](images/bench_res/benchmark_results_4b.png)
+### Способы разделения работы между worker-потоками
 
-As the number of images quadrupled, the processing time for the sequential algorithm also increased nearly fourfold.
+Было выделено 4 способа разделения работы между потоками:
 
-The standard parallel implementation experienced a greater-than-fourfold increase in time, likely due to computational stalls between processing stages. Despite this inefficiency, it remained significantly faster than the sequential approach.
+* По рядам: изображение делится между потоками по рядам.
+* По строкам: изображение делится между потоками по строкам.
+* Попиксельно: изображение делится между потоками по пикселям.
+* По плиткам: изображение делится между потоками по непересекающимся прямоугольникам, или плиткам.
 
-In contrast, the parallel implementation with queues saw its processing time only triple. This method provided a 1.5 to 2 times speedup over the standard parallel approach when processing the set of four images.
 
-## Conclusion
+## Вопросы
 
-Parallel processing accelerated BMP image convolution by more than a factor of three. These gains can be increased further by employing specialized threads and queues. For instance, when processing a sequence of four images, this technique yielded a 1.5-2x speedup over standard parallel methods. Performance is expected to improve even more with a greater number of images.
+**RQ1**: Приносит ли увеличение числа потоков в параллельной версии прирост по производительности?
+
+**RQ2**: Какой способ разделения изображения по потокам в параллельной версии алгоритма приносит наибольший прирост по производительности?
+
+**RQ3**: Какая конфигурация потоков в параллельной версии алгоритма с очередями приносит наибольший прирост по производительности?
+
+
+## Ход работы
+
+### Последовательная и параллельная свёртки
+
+Для параллельной свёртки были выделены следующие числа потоков, на которых будет проводиться замер: 1, 2, 4, 8, 12.
+
+Ниже представлены результаты для изображений Mona_Lisa и Monet_Parasol.
+
+
+**Результат для Mona_Lisa:**
+![small_seq_par](images/bench_res/small_seq_VS_par_modes.png)
+
+**Результат для Monet_Parasol:**
+![big_seq_par](images/bench_res/big_seq_VS_par_modes.png)
+
+Из результатов выше можно сделать следующие выводы:
+
+**Ответ на RQ1**: Увеличение числа потоков приносит увеличение в производительности, независимо от способа разделения работы по потокам.
+
+**Ответ на RQ2**: Наибольший прирост по производительности приносят разделение изображения по рядам и по пикселям, для 4 и более потоков также почти незаметно отставание от них разделения по плиткам. Установлено ускорение в 4 раза по сравнению с последовательной версией в случае выбора 12 потоков и любого способа разделения, кроме разделения по столбцам. Разделение по столбцам приводит к производительности около в 2 раз меньшей, чем разделение по рядам, при любом числе потоков.
+
+
+### Параллельная свёртка с очередями
+
+Учитывая то, что на машине максимально доступно 12 ядер, а количество созданных потоков (для описания потоков см. раздел [**Краткое описание работы потоков**](#краткое-описание-работы-потоков)) высчитывается по формуле:
+
+**re + fo + fo * wo + wr**, где:
+
+* re - число reader-потоков;
+* fo - число foremen-потоков;
+* wo - число worker-потоков;
+* wr - число writer-потоков;
+
+то были выбраны следующие конфигурации потоков (представлены в соответствии с последовательностью выше, перечислены через '-'):
+
+1,1,1,1 - 1,1,2,1 - 1,1,4,1 - 1,1,8,1 - 1,1,12,1 - 2,2,1,2 - 2,2,2,2 - 2,2,4,2 - 2,2,6,2 - 3,3,1,3 - 3,3,2,3 - 3,3,4,3.
+
+Количество изображений было выбрано равным 12.
+
+Результаты представлены ниже.
+
+
+**Результаты для Mona_Lisa:**
+![new_small_parqueue_12](images/bench_res/new_small_parqueue_12.png)
+
+
+**Результаты для Monet_Parasol:**
+![new_big_parqueue_12](images/bench_res/new_big_parqueue_12.png)
+
+
+Из результатов выше можно сделать следующие выводы:
+
+**Ответ на RQ3**: Наибольшую производительность показала конфигурация 2 readers, 2 foremen, 6 workers и 2 writers. 

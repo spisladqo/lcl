@@ -241,16 +241,16 @@ def create_plot(averages, stats_results=None):
     # Добавляем данные, сгруппированные по количеству потоков
     for nthreads in sorted_nthreads:
         # Добавляем Sequential только для nthreads=1
-        if nthreads == "1":
-            labels.append("")
-            values.append(sequential_avg)
-            colors.append(get_color_for_mode("Sequential", "avg"))
+        # if nthreads == "1":
+        #     labels.append("")
+        #     values.append(sequential_avg)
+        #     colors.append(get_color_for_mode("Sequential", "avg"))
             
-            # Add error bar if statistics available
-            if stats_results and "Sequential" in stats_results and "avg" in stats_results["Sequential"] and "1" in stats_results["Sequential"]["avg"]:
-                errors.append(stats_results["Sequential"]["avg"]["1"]["std"])
-            else:
-                errors.append(0)
+        #     # Add error bar if statistics available
+        #     if stats_results and "Sequential" in stats_results and "avg" in stats_results["Sequential"] and "1" in stats_results["Sequential"]["avg"]:
+        #         errors.append(stats_results["Sequential"]["avg"]["1"]["std"])
+        #     else:
+        #         errors.append(0)
         
         # Добавляем Parallel данные для текущего количества потоков
         if "Parallel" in averages:
@@ -303,8 +303,8 @@ def create_plot(averages, stats_results=None):
         group_size = 0
         
         # Считаем размер группы для текущего nthreads
-        if nthreads == "1":
-            group_size += 1  # Sequential
+        # if nthreads == "1":
+        #     group_size += 1  # Sequential
         
         if "Parallel" in averages:
             for mode in averages["Parallel"]:
@@ -368,11 +368,12 @@ def create_plot(averages, stats_results=None):
     # plt.legend(handles=green_mode_legend, loc='upper left', title='Режимы (Parallel+Queue)')
     
     # Create combined legend - all in one
-    all_legend_elements = red_mode_legend + blue_mode_legend
+    all_legend_elements = green_mode_legend
     all_legend_labels = [
-        'Последовательная', 
-                        'Парал. (по рядам)', 'Парал. (по столбцам)', 'Парал. (по плиткам)', 'Парал. (попиксельная)',
-                        # 'по рядам (P+Q)', 'по столбцам (P+Q)', 'по плиткам (P+Q)', 'попиксельно (P+Q)'
+        # 'Последовательная', 
+                        # 'Парал. (по рядам)', 'Парал. (по столбцам)', 'Парал. (по плиткам)', 'Парал. (попиксельная)',
+                        'Парал. с очередями (по рядам)', 'Парал. с очередями (по столбцам)',
+                        'Парал. с очередями (по плиткам)', 'Парал. с очередями (попиксельно)'
                         ]
 
     plt.legend(handles=all_legend_elements, labels=all_legend_labels, 
