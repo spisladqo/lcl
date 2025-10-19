@@ -30,7 +30,7 @@ static void *reader_job(void *thr_arg) {
             pthread_mutex_unlock(read_lock);
             break;
         }
-        
+
         task_t *task = lcl_queue_pop(&read_queue);
         if (!task) {
             read_done = 1;
@@ -59,8 +59,10 @@ static void *reader_job(void *thr_arg) {
         pthread_mutex_lock(fore_lock);
         lcl_queue_push(&fore_queue, task);
         fore_tasks_ready++;
-        // printf("read task:\n src:%p,\n targ:%p,\n src_path: %s,\n targ_path: %s,\n filter: %p\n\n",
-        //     task->src, task->targ, task->src_path, task->targ_path, task->filter);
+        // printf("read task:\n src:%p,\n targ:%p,\n src_path: %s,\n targ_path:
+        // %s,\n filter: %p\n\n",
+        //     task->src, task->targ, task->src_path, task->targ_path,
+        //     task->filter);
         pthread_mutex_unlock(fore_lock);
         pthread_cond_signal(&fore_cv);
     }
@@ -78,12 +80,12 @@ static void *foreman_job(void *thr_arg) {
         while (fore_tasks_ready == 0 && !fore_done) {
             pthread_cond_wait(&fore_cv, fore_lock);
         }
-        
+
         if (fore_done && fore_tasks_ready == 0) {
             pthread_mutex_unlock(fore_lock);
             break;
         }
-        
+
         task_t *task = lcl_queue_pop(&fore_queue);
         fore_tasks_ready--;
         pthread_mutex_unlock(fore_lock);
@@ -108,8 +110,10 @@ static void *foreman_job(void *thr_arg) {
 
         pthread_mutex_lock(fore_lock);
         fore_tasks_done++;
-        // printf("processed task:\n src:%p,\n targ:%p,\n src_path: %s,\n targ_path: %s,\n filter: %p\n\n",
-        //         task->src, task->targ, task->src_path, task->targ_path, task->filter);
+        // printf("processed task:\n src:%p,\n targ:%p,\n src_path: %s,\n
+        // targ_path: %s,\n filter: %p\n\n",
+        //         task->src, task->targ, task->src_path, task->targ_path,
+        //         task->filter);
 
         if (fore_tasks_done == tasks_num) {
             fore_done = 1;
@@ -130,12 +134,12 @@ static void *writer_job(void *thr_arg) {
         while (write_tasks_ready == 0 && !write_done) {
             pthread_cond_wait(&write_cv, write_lock);
         }
-        
+
         if (write_done && write_tasks_ready == 0) {
             pthread_mutex_unlock(write_lock);
             break;
         }
-        
+
         task_t *task = lcl_queue_pop(&write_queue);
         write_tasks_ready--;
         pthread_mutex_unlock(write_lock);
@@ -149,8 +153,10 @@ static void *writer_job(void *thr_arg) {
 
         pthread_mutex_lock(write_lock);
         write_tasks_done++;
-        // printf("wrote task:\n src:%p,\n targ:%p,\n src_path: %s,\n targ_path: %s,\n filter: %p\n\n",
-        //         task->src, task->targ, task->src_path, task->targ_path, task->filter);
+        // printf("wrote task:\n src:%p,\n targ:%p,\n src_path: %s,\n targ_path:
+        // %s,\n filter: %p\n\n",
+        //         task->src, task->targ, task->src_path, task->targ_path,
+        //         task->filter);
 
         if (write_tasks_done == tasks_num) {
             write_done = 1;
@@ -226,8 +232,10 @@ int lcl_conv_array(char **src_paths, char **targ_paths,
         };
         tasks[i] = task;
         lcl_queue_push(&read_queue, &tasks[i]);
-        // printf("pushed task %d:\n src:%p,\n targ:%p,\n src_path: %s,\n targ_path: %s,\n filter: %p\n\n",
-        //     i, task.src, task.targ, task.src_path, task.targ_path, task.filter);
+        // printf("pushed task %d:\n src:%p,\n targ:%p,\n src_path: %s,\n
+        // targ_path: %s,\n filter: %p\n\n",
+        //     i, task.src, task.targ, task.src_path, task.targ_path,
+        //     task.filter);
     }
 
     pthread_mutex_init(&read_lock, NULL);
@@ -236,8 +244,6 @@ int lcl_conv_array(char **src_paths, char **targ_paths,
 
     pthread_cond_init(&fore_cv, NULL);
     pthread_cond_init(&write_cv, NULL);
-
-
 
     for (int i = 0; i < readers_num; i++) {
         thread_arg_t arg = {

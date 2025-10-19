@@ -24,12 +24,12 @@ void print_help(const char *name) {
         "  --conv=<type>           Convolution type (pixelwise, pilewise, "
         "rowwise, columnwise)\n");
     printf("  --nthreads=<n>          Number of threads (default: 1)\n");
-        printf("Required if mode is parq:\n");
+    printf("Required if mode is parq:\n");
     printf(
         "  --conv=<type>           Convolution type (pixelwise, pilewise, "
         "rowwise, columnwise)\n");
     printf("  --nthreads=<n>          Number of threads (default: 1)\n");
-    
+
     printf("Optional arguments:\n");
     printf("  --help                  Show this help message\n\n");
     printf("Examples:\n");
@@ -42,8 +42,10 @@ void print_help(const char *name) {
         name);
 }
 
-int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char *src_list[MAX_IMG_NUM], char *targ_list[MAX_IMG_NUM],
-                lcl_filter_t *filter_list[MAX_IMG_NUM], enum lcl_conv_mode conv_mode_list[MAX_IMG_NUM]) {
+int lcl_parse(int argc, char *argv[], lcl_parse_arg *args,
+              char *src_list[MAX_IMG_NUM], char *targ_list[MAX_IMG_NUM],
+              lcl_filter_t *filter_list[MAX_IMG_NUM],
+              enum lcl_conv_mode conv_mode_list[MAX_IMG_NUM]) {
     int opt;
     int option_index = 0;
 
@@ -92,8 +94,9 @@ int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char *src_list[MAX_IM
                 // printf("read mode %s\n", optarg);
                 if (strcmp(optarg, "seq") != 0 && strcmp(optarg, "par") != 0 &&
                     strcmp(optarg, "parq") != 0) {
-                    printf("error: invalid mode '%s'. Must be seq, par or parq\n",
-                           optarg);
+                    printf(
+                        "error: invalid mode '%s'. Must be seq, par or parq\n",
+                        optarg);
                     return -1;
                 }
                 break;
@@ -123,7 +126,7 @@ int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char *src_list[MAX_IM
                 break;
 
             case 'f':
-                    // args->filter = optarg;
+                // args->filter = optarg;
                 // if (strcmp(args->mode, "parq") == 0) {
                 char *filter_str = strtok(optarg, ",");
                 while (filter_str != NULL) {
@@ -146,11 +149,11 @@ int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char *src_list[MAX_IM
                         filter_list[filter_num++] = &emboss_filter;
                     } else {
                         printf(
-                                "unknown filter '%s'. Please check "
-                                "lib/conv/common.h to "
-                                "find the list of filters to use. For example, "
-                                "--filter=id).\n",
-                                filter_str);
+                            "unknown filter '%s'. Please check "
+                            "lib/conv/common.h to "
+                            "find the list of filters to use. For example, "
+                            "--filter=id).\n",
+                            filter_str);
                         return -1;
                     }
                     filter_str = strtok(NULL, ",");
@@ -201,23 +204,26 @@ int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char *src_list[MAX_IM
                             // printf("writers num: %s\n", str);
                             writers_num = atoi(str);
                         } else {
-                            printf("error: too many nthread parameters, expected 4\n");
+                            printf(
+                                "error: too many nthread parameters, expected "
+                                "4\n");
                             return INVALID_VAL;
                         }
                         str = strtok(NULL, ",");
                         i++;
                     }
-                    if (readers_num <= 0 || foremen_num <= 0 || workers_num <= 0 || writers_num <= 0) {
-                        printf("error: all of thread nums should be positive, but found: %d, %d, %d, %d\n",
+                    if (readers_num <= 0 || foremen_num <= 0 ||
+                        workers_num <= 0 || writers_num <= 0) {
+                        printf(
+                            "error: all of thread nums should be positive, but "
+                            "found: %d, %d, %d, %d\n",
                             readers_num, foremen_num, workers_num, writers_num);
                         return INVALID_VAL;
                     }
-                    args->jobs = (thread_jobs_t) {
-                        .readers_num = readers_num,
-                        .foremen_num = foremen_num,
-                        .workers_num = workers_num,
-                        .writers_num = writers_num
-                    };
+                    args->jobs = (thread_jobs_t){.readers_num = readers_num,
+                                                 .foremen_num = foremen_num,
+                                                 .workers_num = workers_num,
+                                                 .writers_num = writers_num};
                 } else {
                     args->nthreads = atoi(optarg);
                     if (args->nthreads <= 0) {
@@ -233,7 +239,8 @@ int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char *src_list[MAX_IM
         }
     }
 
-    if (src_num == targ_num && targ_num == filter_num && filter_num == conv_num &&
+    if (src_num == targ_num && targ_num == filter_num &&
+        filter_num == conv_num &&
         (strcmp(args->mode, "parq") == 0 || strcmp(args->mode, "par") == 0)) {
         args->src_list = src_list;
         args->targ_list = targ_list;
@@ -245,17 +252,23 @@ int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char *src_list[MAX_IM
         args->targ = targ_list[0];
         args->filter = filter_list[0];
         args->conv = conv_mode_list[0];
-    } else if (src_num == 1 && src_num == targ_num && targ_num == filter_num && strcmp(args->mode, "seq") == 0) {
+    } else if (src_num == 1 && src_num == targ_num && targ_num == filter_num &&
+               strcmp(args->mode, "seq") == 0) {
         args->src = src_list[0];
         args->targ = targ_list[0];
         args->filter = filter_list[0];
         args->conv = conv_mode_list[0];
     } else if (strcmp(args->mode, "parq") == 0) {
-        printf("error: parq mode requires equal number of all list parameters\n");
+        printf(
+            "error: parq mode requires equal number of all list parameters\n");
         return INVALID_VAL;
-    } else if (strcmp(args->mode, "par") == 0 || strcmp(args->mode, "seq") == 0) {
-        printf("error: seq par modes require one parameter for each argument parameters, but found:"
-            "src: %d, targ: %d, filter: %d, conv: %d\n", src_num, targ_num, filter_num, conv_num);
+    } else if (strcmp(args->mode, "par") == 0 ||
+               strcmp(args->mode, "seq") == 0) {
+        printf(
+            "error: seq par modes require one parameter for each argument "
+            "parameters, but found:"
+            "src: %d, targ: %d, filter: %d, conv: %d\n",
+            src_num, targ_num, filter_num, conv_num);
         return INVALID_VAL;
     }
 

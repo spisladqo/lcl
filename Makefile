@@ -22,20 +22,15 @@ all:
 debug:
 	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(PARSE_DIR)/*.c -g -fsanitize=address -o $(PROJECT) $(CFLAGS)
 
-bench:
-	$(CC) $(LIB_DIR)/*/* $(BENCH_DIR)/*.c -o $(PROJECT)_bench
-
 test:
 	$(CC) $(LIB_DIR)/*/* -Wall -Wextra -g $(UNIT_DIR)/* -o $(PROJECT)_tests -lcmocka
 	./$(PROJECT)_tests
 
 fmt:
 	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, SortIncludes: false}" -i $(LIB_DIR)/*/* $(PARSE_DIR)/*
-# 	$(UNIT_DIR)/* $(BENCH_DIR)/bench.c
 
 fmt-check:
 	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, SortIncludes: false}" --dry-run --Werror  $(LIB_DIR)/*/* $(PARSE_DIR)/*
-# 	$(UNIT_DIR)/* $(BENCH_DIR)/bench.c
 
 clean-img:
 	rm -rf $(IMG_OUT_DIR)/*

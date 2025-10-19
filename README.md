@@ -2,11 +2,10 @@
 Library (and cli tool) for single- and multi-threaded bmp image convolution.
 
 ## Setting up
-```
-git clone https://github.com/spisladqo/lcl && cd lcl
 
-make build
-```
+To run tests, you need to have cmocka.
+
+To run benchmarks, setup 3.12 python virtual environment and install requirements.txt.
 
 ## Usage
 

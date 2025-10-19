@@ -24,8 +24,8 @@ int main(int argc, char *argv[]) {
 
     lcl_init_filters();
 
-
-    int err = lcl_parse(argc, argv, &args, src_list, targ_list, filter_list, conv_mode_list);
+    int err = lcl_parse(argc, argv, &args, src_list, targ_list, filter_list,
+                        conv_mode_list);
     if (err) {
         return err;
     }
@@ -65,14 +65,16 @@ int main(int argc, char *argv[]) {
             return err;
         }
 
-        err = lcl_app_filter(args.conv, args.nthreads, args.filter, &src, &targ);
+        err =
+            lcl_app_filter(args.conv, args.nthreads, args.filter, &src, &targ);
 
         err = bmp_img_write(&targ, args.targ);
         if (err) {
             printf("could not write img, error %d\n", err);
         }
     } else if (strcmp(args.mode, "parq") == 0) {
-        err = lcl_conv_array(src_list, targ_list, conv_mode_list, filter_list, args.list_size, args.jobs);
+        err = lcl_conv_array(src_list, targ_list, conv_mode_list, filter_list,
+                             args.list_size, args.jobs);
     } else {
         printf("error: unknown mode %s\n", args.mode);
         return INVALID_KEY;
@@ -91,7 +93,6 @@ int main(int argc, char *argv[]) {
     sec = (end.tv_sec - start.tv_sec);
     double elapsed = sec + nsec / NSEC_IN_SEC;
     elapsed *= MS_IN_SEC;
-
 
     printf("%f", elapsed);
 

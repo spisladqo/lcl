@@ -20,5 +20,6 @@ typedef struct {
     int list_size;
 } lcl_parse_arg;
 
-int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char** src_list, char** targ_list,
-                lcl_filter_t **filter_list, enum lcl_conv_mode *conv_mode_list);
+int lcl_parse(int argc, char *argv[], lcl_parse_arg *args, char **src_list,
+              char **targ_list, lcl_filter_t **filter_list,
+              enum lcl_conv_mode *conv_mode_list);

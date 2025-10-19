@@ -90,7 +90,7 @@ def extract_averages(output_text):
         elif re.match(r'^\d+\.\d+', line):
             # Add timing value to current run data
             try:
-                current_run_data.append(float(line) / 1000)
+                current_run_data.append(float(line))
             except ValueError:
                 continue
     
@@ -233,7 +233,7 @@ def create_plot(averages, stats_results=None):
             try:
                 sorted_list.append((int(nthreads), nthreads))
             except ValueError:
-                sorted_list.append((float('inf'), nthreads))  # Нечисловые значения в конец
+                return sorted(nthreads_list, key=lambda x: tuple(int(n) for n in x.split(',')))
         return [nthreads for _, nthreads in sorted(sorted_list)]
     
     sorted_nthreads = sort_nthreads(list(all_nthreads))
@@ -274,7 +274,7 @@ def create_plot(averages, stats_results=None):
             for mode, nthreads_data in averages["Parallel + Queue"].items():
                 if nthreads in nthreads_data:
                     translated_mode = mode_translations.get(mode, mode)
-                    labels.append(f"Паралл. + Очереди\n({translated_mode})")
+                    labels.append(f"потоки: {nthreads}")
                     values.append(nthreads_data[nthreads])
                     colors.append(get_color_for_mode("Parallel + Queue", mode))
                     
@@ -291,10 +291,10 @@ def create_plot(averages, stats_results=None):
                    yerr=errors, capsize=5, error_kw={'elinewidth': 2, 'capthick': 2})
     
 
-    titlename = 'Среднее время исполнения для разных режимов свёртки на изображении Monet_Parasol (6001x7455 px)'
+    titlename = 'Среднее время исполнения для разного разделения потоков на изображении Mona_Lisa (960x1431 px) (12 изоб.)'
     # Russian labels for the plot
     plt.title(titlename, fontsize=14, fontweight='bold')
-    plt.ylabel('Время (с)', fontsize=12)
+    plt.ylabel('Время (мс)', fontsize=12)
     plt.xticks(range(len(labels)), labels, rotation=45, ha='right', fontsize=9)
     
     # Добавляем разделители между группами потоков
@@ -317,14 +317,14 @@ def create_plot(averages, stats_results=None):
                     group_size += 1
         
         # Добавляем вертикальную линию после группы
-        if current_pos + group_size < len(labels) and len(sorted_nthreads) > 1:
-            plt.axvline(x=current_pos + group_size - 0.5, color='gray', linestyle=':', alpha=0.5)
+        # if current_pos + group_size < len(labels) and len(sorted_nthreads) > 1:
+        # plt.axvline(x=current_pos + group_size - 0.5, color='gray', linestyle=':', alpha=0.5)
 
         # Подписываем группу
-        plt.text(current_pos - 0.3, plt.ylim()[1] * 0.95, 
-                f'потоки: {nthreads}', 
-                ha='left', va='baseline', fontsize=10, 
-                bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
+        # plt.text(current_pos - 0.4, plt.ylim()[1] * 0.95, 
+        #         f're,fo,wo,wr:\n{nthreads}', 
+        #         ha='left', va='baseline', fontsize=10, 
+        #         bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
         current_pos += group_size
     
     # Add value labels on bars
@@ -372,12 +372,13 @@ def create_plot(averages, stats_results=None):
     all_legend_labels = [
         # 'Последовательная', 
                         # 'Парал. (по рядам)', 'Парал. (по столбцам)', 'Парал. (по плиткам)', 'Парал. (попиксельная)',
-                        'Парал. с очередями (по рядам)', 'Парал. с очередями (по столбцам)',
-                        'Парал. с очередями (по плиткам)', 'Парал. с очередями (попиксельно)'
+                        'Парал. с очередями (по рядам)'
+                        # , 'Парал. с очередями (по столбцам)',
+                        # 'Парал. с очередями (по плиткам)', 'Парал. с очередями (попиксельно)'
                         ]
 
     plt.legend(handles=all_legend_elements, labels=all_legend_labels, 
-            loc='upper right', title='Вид свёртки', bbox_to_anchor=(1.0, 1.0),
+            loc='best', title='Вид свёртки', bbox_to_anchor=(1, 1.0),
             ncol=1, fontsize=9)  # ncol=1 for single column
 
     plt.grid(axis='y', alpha=0.3, linestyle='--')
