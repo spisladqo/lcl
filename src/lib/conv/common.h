@@ -187,6 +187,16 @@ extern lcl_filter_t negative_filter;
  */
 extern lcl_filter_t emboss_filter;
 
+/*
+ * Left shift filter 3x3.
+ */
+extern lcl_filter_t left_shift_filter;
+
+/*
+ * Right shift filter 3x3.
+ */
+extern lcl_filter_t right_shift_filter;
+
 /**
  * Allocate memory for filters and fill them with values.
  * Should be used before working with the filters, the filters should then be
