@@ -60,8 +60,5 @@ lcl*
 # vscode
 .vscode/
 
-# image convolution output
-out*
-
 # valgrind
 vgcore*

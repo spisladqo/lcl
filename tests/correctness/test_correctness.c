@@ -183,72 +183,48 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
 #define DEFINE_PARQUEUE_TEST(name, img_idx, filter_suffix, filter_idx)     \
     static void test_parqueue_##name##_##filter_suffix(void **state) {     \
         (void)state;                                                       \
-        const char *srcn = srcs[img_idx];                                  \
-        const char *targn = targs[img_idx];                                \
-        bmp_img src, targ_seq, targ_par;                                   \
-        int err = bmp_img_read(&src, srcn);                                \
-        if (err) {                                                         \
-            printf("could not read img to src: error %d\n", err);          \
-            fail();                                                        \
-            return;                                                        \
-        }                                                                  \
-        err = bmp_img_read(&targ_seq, srcn);                               \
-        if (err) {                                                         \
-            printf("could not read img to seq targ: error %d\n", err);     \
-            bmp_img_free(&src);                                            \
-            fail();                                                        \
-            return;                                                        \
-        }                                                                  \
-        err = bmp_img_read(&targ_par, srcn);                               \
-        if (err) {                                                         \
-            printf("could not read img to par targ: error %d\n", err);     \
-            bmp_img_free(&src);                                            \
-            bmp_img_free(&targ_seq);                                       \
-            fail();                                                        \
-            return;                                                        \
-        }                                                                  \
-        lcl_filter_t *filter = (lcl_filter_t *)filt[filter_idx];           \
-        lcl_filter_t *filters[1] = {filter};                               \
-        thread_jobs_t jobs = {1, 1, 2, 1};                                 \
-        char *srcns[] = {(char *)srcn};                                    \
-        char *targns[] = {(char *)targn};                                  \
-        for (int i = 0; i < MODES_NUM; i++) {                              \
-            enum lcl_conv_mode conv[1] = {modes[i]};                       \
-            lcl_app_filter_seq(filter, &src, &targ_seq);                   \
-            bmp_img_write(&targ_seq, targn);                               \
-            err = bmp_img_read(&targ_seq, targn);                          \
-            if (err) {                                                     \
-                printf("read after write\n"); \
-                printf("targn: %s\n", targn); \
-                printf("could not read img to seq targ: error %d\n", err); \
-                bmp_img_free(&src);                                        \
-                fail();                                                    \
-                return;                                                    \
-            }                                                              \
-            lcl_conv_array(srcns, targns, conv, filters, 1, jobs);         \
-            err = bmp_img_read(&targ_par, targn);                          \
-            if (err) {                                                     \
+        char *srcns[] = { srcs[img_idx] };\
+        char *targns[] = { targs[img_idx] };\
+        lcl_filter_t *filters[] = { filt[filter_idx] }; \
+        thread_jobs_t jobs = (thread_jobs_t){1,1,2,1}; \
+        bmp_img src, targ_seq, targ_par; \
+        int err = bmp_img_read(&src, srcns[0]); \
+        if (err) {                                                     \
+            printf("could not read img to src: error %d\n", err);      \
+            fail();                                                    \
+            return;                                                    \
+        }                                                              \
+        err = bmp_img_read(&targ_seq, srcns[0]); \
+        if (err) {                                                     \
+            printf("could not read img to seq targ: error %d\n", err);      \
+            fail();                                                    \
+            return;                                                    \
+        }                                                              \
+        for (int i = 0; i < MODES_NUM; i++) { \
+            enum lcl_conv_mode conv_modes[] = { modes[i] }; \
+            lcl_app_filter_seq(filters[0], &src, &targ_seq); \
+            lcl_conv_array(srcns, targns, conv_modes, filters, 1, jobs); \
+            err = bmp_img_read(&targ_par, targns[0]); \
+            if (err) { \
                 printf("could not read img to par targ: error %d\n", err); \
-                fail();                                                    \
-                bmp_img_free(&src);                                        \
-                bmp_img_free(&targ_seq);                                   \
-                return;                                                    \
-            }                                                              \
-            err = compare_imgs(&targ_seq, &targ_par);                      \
-            if (err) {                                                     \
-                printf("parqueue test failed: %s mode %d\n", srcn, i);     \
-                bmp_img_free(&src);                                        \
-                bmp_img_free(&targ_seq);                                   \
-                bmp_img_free(&targ_par);                                   \
-                fail();                                                    \
-                return;                                                    \
-            }                                                              \
-            bmp_img_free(&targ_par);                                       \
-        }                                                                  \
-        bmp_img_free(&targ_seq);                                           \
-        bmp_img_free(&src);                                                \
-        \ 
-                                                                     \
+                bmp_img_free(&src);\
+                bmp_img_free(&targ_seq);\
+                fail(); \
+                return; \
+            } \
+            err = compare_imgs(&targ_seq, &targ_par); \
+            if (err) {                                                 \
+                printf("parqueue test failed: %s mode %d\n", srcns[0], i); \
+                bmp_img_free(&src);                                    \
+                bmp_img_free(&targ_seq);                               \
+                bmp_img_free(&targ_par);                               \
+                fail();                                                \
+                return;                                                \
+            }                                                          \
+            bmp_img_free(&targ_par);                               \
+        } \
+        bmp_img_free(&src);                                    \
+        bmp_img_free(&targ_seq);                               \
     }
 
 DEFINE_SEQ_ID_TEST(almond, 0)

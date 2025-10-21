@@ -149,6 +149,7 @@ static void *writer_job(void *thr_arg) {
         int ret = bmp_img_write(targ, targ_path);
         if (ret) {
             printf("could not write img %s to src: error %d\n", targ_path, ret);
+            break;
         }
 
         pthread_mutex_lock(write_lock);
@@ -188,6 +189,10 @@ int lcl_conv_array(char **src_paths, char **targ_paths,
     //     bmp_img_init_df(&src[i], 0, 0);
     //     bmp_img_init_df(&targ[i], 0, 0);
     // }
+
+    fore_tasks_ready = write_tasks_ready = 0;
+    tasks_num = fore_tasks_done = write_tasks_done = 0;
+    read_done = fore_done = write_done = 0;
 
     int readers_num = jobs.readers_num;
     int foremen_num = jobs.foremen_num;
