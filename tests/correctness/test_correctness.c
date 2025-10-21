@@ -76,6 +76,7 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
         err = bmp_img_read(&targ, srcn);                           \
         if (err) {                                                 \
             printf("could not read img to targ: error %d\n", err); \
+            bmp_img_free(&src);                                    \
             fail();                                                \
             return;                                                \
         }                                                          \
@@ -83,9 +84,13 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
         err = compare_imgs(&src, &targ);                           \
         if (err) {                                                 \
             printf("sequential id test failed: %s\n", srcn);       \
+            bmp_img_free(&src);                                    \
+            bmp_img_free(&targ);                                   \
             fail();                                                \
             return;                                                \
         }                                                          \
+        bmp_img_free(&src);                                        \
+        bmp_img_free(&targ);                                       \
     }
 
 #define DEFINE_SEQ_SHIFT_TEST(name, img_idx)                       \
@@ -102,12 +107,15 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
         err = bmp_img_read(&temp, srcn);                           \
         if (err) {                                                 \
             printf("could not read img to temp: error %d\n", err); \
+            bmp_img_free(&src);                                    \
             fail();                                                \
             return;                                                \
         }                                                          \
         err = bmp_img_read(&targ, srcn);                           \
         if (err) {                                                 \
             printf("could not read img to targ: error %d\n", err); \
+            bmp_img_free(&src);                                    \
+            bmp_img_free(&temp);                                   \
             fail();                                                \
             return;                                                \
         }                                                          \
@@ -116,9 +124,15 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
         err = compare_imgs(&src, &targ);                           \
         if (err) {                                                 \
             printf("sequential shift test failed: %s\n", srcn);    \
+            bmp_img_free(&src);                                    \
+            bmp_img_free(&temp);                                   \
+            bmp_img_free(&targ);                                   \
             fail();                                                \
             return;                                                \
         }                                                          \
+        bmp_img_free(&src);                                        \
+        bmp_img_free(&temp);                                       \
+        bmp_img_free(&targ);                                       \
     }
 
 #define DEFINE_PARAL_TEST(name, img_idx, filter_suffix, filter_idx)    \
@@ -136,12 +150,15 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
         err = bmp_img_read(&targ_seq, srcn);                           \
         if (err) {                                                     \
             printf("could not read img to seq targ: error %d\n", err); \
+            bmp_img_free(&src);                                        \
             fail();                                                    \
             return;                                                    \
         }                                                              \
         err = bmp_img_read(&targ_par, srcn);                           \
         if (err) {                                                     \
             printf("could not read img to par targ: error %d\n", err); \
+            bmp_img_free(&src);                                        \
+            bmp_img_free(&targ_seq);                                   \
             fail();                                                    \
             return;                                                    \
         }                                                              \
@@ -151,10 +168,16 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
             err = compare_imgs(&targ_seq, &targ_par);                  \
             if (err) {                                                 \
                 printf("parallel test failed: %s mode %d\n", srcn, i); \
+                bmp_img_free(&src);                                    \
+                bmp_img_free(&targ_seq);                               \
+                bmp_img_free(&targ_par);                               \
                 fail();                                                \
                 return;                                                \
             }                                                          \
         }                                                              \
+        bmp_img_free(&src);                                            \
+        bmp_img_free(&targ_seq);                                       \
+        bmp_img_free(&targ_par);                                       \
     }
 
 #define DEFINE_PARQUEUE_TEST(name, img_idx, filter_suffix, filter_idx)     \
@@ -172,12 +195,15 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
         err = bmp_img_read(&targ_seq, srcn);                               \
         if (err) {                                                         \
             printf("could not read img to seq targ: error %d\n", err);     \
+            bmp_img_free(&src);                                            \
             fail();                                                        \
             return;                                                        \
         }                                                                  \
         err = bmp_img_read(&targ_par, srcn);                               \
         if (err) {                                                         \
             printf("could not read img to par targ: error %d\n", err);     \
+            bmp_img_free(&src);                                            \
+            bmp_img_free(&targ_seq);                                       \
             fail();                                                        \
             return;                                                        \
         }                                                                  \
@@ -190,9 +216,11 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
             enum lcl_conv_mode conv[1] = {modes[i]};                       \
             lcl_app_filter_seq(filter, &src, &targ_seq);                   \
             bmp_img_write(&targ_seq, targn);                               \
+            bmp_img_free(&targ_seq);                                       \
             err = bmp_img_read(&targ_seq, targn);                          \
             if (err) {                                                     \
                 printf("could not read img to seq targ: error %d\n", err); \
+                bmp_img_free(&src);                                        \
                 fail();                                                    \
                 return;                                                    \
             }                                                              \
@@ -201,15 +229,25 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
             if (err) {                                                     \
                 printf("could not read img to par targ: error %d\n", err); \
                 fail();                                                    \
+                bmp_img_free(&src);                                        \
+                bmp_img_free(&targ_seq);                                   \
                 return;                                                    \
             }                                                              \
             err = compare_imgs(&targ_seq, &targ_par);                      \
             if (err) {                                                     \
                 printf("parqueue test failed: %s mode %d\n", srcn, i);     \
+                bmp_img_free(&src);                                        \
+                bmp_img_free(&targ_seq);                                   \
+                bmp_img_free(&targ_par);                                   \
                 fail();                                                    \
                 return;                                                    \
             }                                                              \
+            bmp_img_free(&targ_par);                                       \
         }                                                                  \
+        bmp_img_free(&targ_seq);                                           \
+        bmp_img_free(&src);                                                \
+        \ 
+                                                                     \
     }
 
 DEFINE_SEQ_ID_TEST(almond, 0)
