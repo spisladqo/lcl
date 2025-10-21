@@ -55,7 +55,7 @@ dkms.conf
 temp
 main
 liblcl_*
-lcl
+lcl*
 
 # vscode
 .vscode/

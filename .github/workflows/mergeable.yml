@@ -1,4 +1,4 @@
-name: Lcl build
+name: Lcl build and test
 
 on:
   push:
@@ -16,8 +16,10 @@ jobs:
         run: make build
       - name: Install cmocka
         run: sudo apt-get update && sudo apt-get install && sudo apt-get install -y libcmocka-dev
-      - name: Run tests
+      - name: Run unit tests
         run: make test
+      - name: Run correctness tests
+        run: make test-correctness
 
   format:
     runs-on: ubuntu-latest

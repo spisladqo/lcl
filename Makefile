@@ -29,7 +29,7 @@ test:
 
 test-correctness:
 	$(CC) $(LIB_DIR)/*/* -Wall -Wextra -g $(CORRECTNESS_DIR)/* -o $(PROJECT)_correctness -lcmocka
-# 	./$(PROJECT)_correctness
+	./$(PROJECT)_correctness
 
 fmt:
 	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, SortIncludes: false}" -i $(LIB_DIR)/*/* $(PARSE_DIR)/* $(TEST_DIR)/*/*

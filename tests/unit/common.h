@@ -7,7 +7,6 @@
 #include <cmocka.h>
 
 #include "../../src/lib/conv/common.h"
-#include "../../src/lib/compare/compare_imgs.h"
 #include "../../src/lib/conv/queue.h"
 
 bmp_img *create_test_image(int width, int height, bmp_pixel pixel);
