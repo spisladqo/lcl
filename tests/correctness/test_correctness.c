@@ -209,16 +209,17 @@ int compare_imgs(const bmp_img *src, const bmp_img *targ) {
         }                                                                  \
         lcl_filter_t *filter = (lcl_filter_t *)filt[filter_idx];           \
         lcl_filter_t *filters[1] = {filter};                               \
-        thread_jobs_t jobs = {1, 1, 8, 1};                                 \
+        thread_jobs_t jobs = {1, 1, 2, 1};                                 \
         char *srcns[] = {(char *)srcn};                                    \
         char *targns[] = {(char *)targn};                                  \
         for (int i = 0; i < MODES_NUM; i++) {                              \
             enum lcl_conv_mode conv[1] = {modes[i]};                       \
             lcl_app_filter_seq(filter, &src, &targ_seq);                   \
             bmp_img_write(&targ_seq, targn);                               \
-            bmp_img_free(&targ_seq);                                       \
             err = bmp_img_read(&targ_seq, targn);                          \
             if (err) {                                                     \
+                printf("read after write\n"); \
+                printf("targn: %s\n", targn); \
                 printf("could not read img to seq targ: error %d\n", err); \
                 bmp_img_free(&src);                                        \
                 fail();                                                    \
