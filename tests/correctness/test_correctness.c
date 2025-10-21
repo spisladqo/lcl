@@ -19,11 +19,11 @@ const lcl_filter_t *filt[] = {
     &edge_filter,       &sharp_filter,      &negative_filter, &emboss_filter,
     &left_shift_filter, &right_shift_filter};
 const char *srcs[] = {
-    "images/input/Almond_van_Gogh.bmp", "images/input/Impression_Sunrise.bmp",
+    "images/input/Almond_Blossoms.bmp", "images/input/Impression.bmp",
     "images/input/Rye.bmp", "images/input/Sunflowers_van_Gogh.bmp",
     "images/input/The_Ninth_Wave.bmp"};
 const char *targs[] = {
-    "images/output/Almond_van_Gogh.bmp", "images/output/Impression_Sunrise.bmp",
+    "images/output/Almond_Blossoms.bmp", "images/output/Impression.bmp",
     "images/output/Rye.bmp", "images/output/Sunflowers_van_Gogh.bmp",
     "images/output/The_Ninth_Wave.bmp"};
 
