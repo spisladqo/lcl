@@ -10,6 +10,7 @@ TEST_DIR=tests
 
 BENCH_DIR=$(TEST_DIR)/benchmarks
 UNIT_DIR=$(TEST_DIR)/unit
+CORRECTNESS_DIR=$(TEST_DIR)/correctness
 
 CC=gcc
 CFLAGS+= -O1
@@ -20,14 +21,18 @@ all:
 	$(CC) $(LIB_DIR)/*/* $(PARSE_DIR)/* -o $(PROJECT) $(CFLAGS)
 
 debug:
-	$(CC) $(LIB_CONV_DIR)/* $(LIB_LIBBMP_DIR)/* $(PARSE_DIR)/*.c -g -fsanitize=address -o $(PROJECT) $(CFLAGS)
+	$(CC) $(LIB_DIR)/*/* $(PARSE_DIR)/* -g -fsanitize=address -o $(PROJECT) $(CFLAGS)
 
 test:
 	$(CC) $(LIB_DIR)/*/* -Wall -Wextra -g $(UNIT_DIR)/* -o $(PROJECT)_tests -lcmocka
 	./$(PROJECT)_tests
 
+test-correctness:
+	$(CC) $(LIB_DIR)/*/* -Wall -Wextra -g $(CORRECTNESS_DIR)/* -o $(PROJECT)_correctness -lcmocka
+# 	./$(PROJECT)_correctness
+
 fmt:
-	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, SortIncludes: false}" -i $(LIB_DIR)/*/* $(PARSE_DIR)/*
+	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, SortIncludes: false}" -i $(LIB_DIR)/*/* $(PARSE_DIR)/* $(TEST_DIR)/*/*
 
 fmt-check:
 	clang-format -style="{BasedOnStyle: Google, IndentWidth: 4, SortIncludes: false}" --dry-run --Werror  $(LIB_DIR)/*/* $(PARSE_DIR)/*
