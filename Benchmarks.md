@@ -16,7 +16,9 @@
 
 - Mona_Lisa.bmp 960x1431 пикселей
 
-- Monet_Parasol.bmp 6001x7455 пикселей
+- Monet_Parasol.bmp 6001x7455 пикселей 
+
+Все изображения можно найти в images/input. Monet_Parasol хранится в формате .jpg, т.к. .bmp слишком большая для GitHub.
 
 
 ## Функции свёртки
