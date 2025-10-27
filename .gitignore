@@ -54,6 +54,11 @@ dkms.conf
 # temporary files
 temp
 main
+liblcl_*
+lcl*
 
-# image convolution output
-out*
+# vscode
+.vscode/
+
+# valgrind
+vgcore*
